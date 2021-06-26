@@ -1,0 +1,74 @@
+#!/usr/bin/env node
+"use strict"; ////
+const validate = require('./validate.js');
+const func = require('./func.js');
+const mongodb = require('mongodb');
+
+async function dbConnect(dbConn, dbName) {
+  let t = await mongodb.MongoClient.connect(dbConn, { useUnifiedTopology: true }); global.db = t.db(dbName);
+
+  // check if db is empty and create the first user
+  t = await global.db.collection("users").findOne({});
+  if (!t) {
+    let p = func.randomString(10)
+    let salt = func.randomString(10)
+    console.log('kiki first password ' + p)
+    let u = {
+      "email": "kiki@kiki.com",
+      "name": "kiki",
+      "role": "admin",
+      "passSalt" : salt,
+      "pass": func.createHash(p + salt)
+    }
+    let t = await global.db.collection("users").insertOne(u);
+    console.log('created first user')
+  }
+
+}
+
+async function dbDo(q, user) {
+  let r = {};
+  let vres = await validate(q, user); if (vres.error) return vres;
+
+  if (q.act == 'find') {
+    if (q.count) r.count = await global.db.collection(q.col).find(q.query,{}).count();
+    let skip = q.skip; if (!skip) skip = 0;
+    let limit = q.limit; if (!limit) limit = 999999;
+    let sort = q.sort; if (!sort) sort = {};
+    let project = q.project; if (!project) project = {};
+    r.data = await global.db.collection(q.col).find(q.query).skip(skip).project(project).limit(limit).sort(sort).toArray()
+  }
+  else if (q.act == 'insert' && q.data.length) {
+    r = await global.db.collection(q.col).insertMany(q.data)
+  }
+  else if (q.act == 'update') {
+    r = await global.db.collection(q.col).updateMany(q.query, { $set: q.data[0] }, q.updateOptions)
+  }
+  else if (q.act == 'push') {
+    r = await global.db.collection(q.col).updateMany(q.query, { $push: q.data[0] }, q.updateOptions)
+  }
+  else if (q.act == 'pull') {
+    r = await global.db.collection(q.col).updateMany(q.query, { $pull: q.data[0] }, q.updateOptions)
+  }
+  else if (q.act == 'delete') {
+    r = await global.db.collection(q.col).deleteMany(q.query)
+  }
+
+  delete r.connection;
+  return r;
+}
+
+function convertMongoIds(q) {
+  // convert string _id to mongo objectid
+  if(!q) return;
+  if (typeof q._id === 'object') {
+    if(q._id["$in"]) q._id["$in"] = q._id["$in"].map(e => mongodb.ObjectId(e));
+    if(q._id["$ne"]) q._id["$ne"] = mongodb.ObjectId(q._id["$ne"]);
+  }
+  else if (q._id) {
+    q._id = mongodb.ObjectId(q._id);
+  }
+  return q
+}
+
+module.exports = { dbConnect, dbDo, convertMongoIds }
