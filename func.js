@@ -348,7 +348,7 @@ function uniqueArray(a) {
 }
 
 // -------------------hash
-let hashSaltAdd = '!TV@&R$%*^@@!'
+let hashSaltAdd = 'vjdDFG#^$421''
 let hashPepperChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 
 function createHash(string, pepper) {

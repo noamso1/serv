@@ -41,6 +41,82 @@ async function validate(q, user) {
     }
   }
 
+  //////////////////////////// schemas - field types
+  let types = {
+    fares: {
+      code: 'increment',
+      from: 'stringArray',
+      to: 'stringArray',
+      service: 'stringArray',
+      unit: 'stringArray',
+      profile: 'stringArray',
+      profileType: 'stringArray',
+      parentCode: 'stringArray',
+      tag: 'stringArray',
+      parentTag: 'stringArray',
+      weekDays: 'numberArray',
+      value: 'number', 
+      priority: 'number', 
+      dis1: 'number', 
+      dis2: 'number', 
+      seats: 'number', 
+      date1: 'date', 
+      date2: 'date', 
+      hour1: 'hour',
+      hour2: 'hour',
+    }
+  }
+
+  if ( [ 'insert', 'update' ].includes(q.act) ) {
+
+    for ( let item of q.data ) { 
+
+      if ( q.act == 'insert' ) { 
+        for ( let f in types[q.col] ) {
+          if ( !item[f] ) item[f] = '' 
+        }
+      }
+
+      for ( let f in item ) {
+        let m = types[q.col]
+        if ( m ) {
+          if ( m[f] == 'increment' && q.act == 'insert' && !item[f] ) item[f] = await func.getSeedInc(q.col)
+
+          if ( m[f] == 'string' && q.act == 'insert' && !item[f] ) item[f] += ''
+
+          if ( m[f] == 'stringArray' && ( q.act == 'insert' || item[f] ) ) {
+            if ( typeof item[f] == 'string' && item[f] != '' ) item[f] =  item[f].split(',')
+            if ( !item[f] || !Array.isArray(item[f]) ) item[f] = []
+            for ( let i = 0; i < item[f].length; i++ ) { item[f][i] += ''; item[f][i] = item[f][i].trim() }
+            item[f] = item[f].filter( e => e != '' )
+          }
+
+          if ( m[f] == 'numberArray' && ( q.act == 'insert' || item[f] ) ) {
+            if ( typeof item[f] == 'string' && item[f] != '' ) item[f] =  item[f].split(',')
+            if ( !item[f] || !Array.isArray(item[f]) ) item[f] = []
+            item[f] = item[f].filter( e => func.isNumeric(e) )
+            for ( let i = 0; i < item[f].length; i++ ) { item[f][i] = Number(item[f][i]) }
+          }
+
+          if ( m[f] == 'number' && ( q.act == 'insert' || item[f] ) ) {
+            if ( !item[f] || !func.isNumeric(item[f]) ) item[f] = 0
+            item[f] = Number(item[f])
+          } 
+
+          if ( m[f] == 'date' && ( q.act == 'insert' || item[f] ) ) {
+            if ( !item[f] || !func.isDate(item[f]) ) item[f] = ''
+          }
+
+          if ( m[f] == 'hour' && ( q.act == 'insert' || item[f] ) ) {
+            if ( !item[f] || !func.isHour(item[f]) ) item[f] = ''
+          }
+
+        }
+      }
+    }
+  }
+
+  ////////////////////////////////////////
   return {};
 }
 
