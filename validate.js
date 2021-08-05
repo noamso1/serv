@@ -47,6 +47,7 @@ async function validate(q, user) {
       code: 'increment',
       from: 'stringArray',
       to: 'stringArray',
+      biDir: 'boolean',
       service: 'stringArray',
       unit: 'stringArray',
       profile: 'stringArray',
@@ -101,6 +102,11 @@ async function validate(q, user) {
           if ( m[f] == 'number' && ( q.act == 'insert' || item[f] ) ) {
             if ( !item[f] || !func.isNumeric(item[f]) ) item[f] = 0
             item[f] = Number(item[f])
+          } 
+
+          if ( m[f] == 'boolean' && ( q.act == 'insert' || item[f] ) ) {
+            let t = item[f] + ''
+            item[f] = false; if ( t.toLowerCase() == 'true' ) item[f] = true
           } 
 
           if ( m[f] == 'date' && ( q.act == 'insert' || item[f] ) ) {
