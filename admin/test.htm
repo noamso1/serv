@@ -80,20 +80,18 @@
   let qq = {
     "Login": { "act": "login", "query": { "email": "kiki@kiki.com", "pass": "1" } },
     "Refresh Token": { "act": "refreshtoken", "token": "!" },
-    "Find User": { "token": "!", "col": "users", "act": "find", "count": true, "query": {"name": "kiki"} },
+    "Find User": { "token": "!", "col": "users", "act": "find", "count": 1, "query": {"name": "kiki"}, "sums": ["price"] },
     "Multiple Queries": {
       "token": "!",
       "queries": [{
           "col": "users",
           "act": "find",
-          "count": true,
           "limit": 1,
           "query": {}
         },
         {
           "col": "settings",
           "act": "find",
-          "count": true,
           "limit": 1,
           "query": {}
         }
