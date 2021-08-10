@@ -120,92 +120,6 @@ function fetch(url, method, headers, data) {
   })
 }
 
-//-----------------------------------------
-function encr(thetext, thepass) {
-  let pass = thepass, text = thetext
-  //let salt = randomString(5); pass += salt
-
-  let x = 10 + Math.random() * 10; x = x.toFixed();
-  text += '.' + randomString(x);
-  text += '.' + crc(text, 4);
-  let r = text.split('');
-
-  //scramble the letters
-  let pi = -1;
-  for (let i = 0; i < r.length; i++) {
-    pi++; if (pi >= pass.length) pi = 0;
-    let sw = i + pass.substring(pi, pi + 1).charCodeAt(0); //swap position
-    sw = sw % r.length; //modulus remainder
-    let t = r[i]; r[i] = r[sw]; r[sw] = t
-  }
-  //xor the values
-  pi = -1;
-  for (let i = 0; i < r.length; i++) {
-    pi++; if (pi >= pass.length) pi = 0;
-    let t = r[i].charCodeAt(0);
-    t = t ^ pass.substring(pi, pi + 1).charCodeAt(0); //xor
-    r[i] = t;
-  }
-
-  //back to string, and then to base64
-  let r2 = '';
-  for (let i = 0; i < r.length; i++) {
-    r2 += String.fromCharCode(r[i]);
-  }
-
-  //r2 += '.' + salt
-  r = Buffer.from(r2).toString('base64');
-  return r;
-}
-
-function decr(thetext, thepass) {
-  let text = thetext, pass = thepass
-  let buf = Buffer.from(thetext, 'base64').toString();
-  //let salt = buf.substring(buf.lastIndexOf('.') + 1, buf.length); pass += salt; buf = buf.substring(0, buf.lastIndexOf('.'))
-
-  //xor with pass, and push to array
-  let r = []; let pi = -1;
-  for (let i = 0; i < buf.length; i++) {
-    pi++; if (pi >= pass.length) pi = 0;
-    let t = buf.charCodeAt(i);
-    t = t ^ pass.substring(pi, pi + 1).charCodeAt(0); //xor
-    r.push(t);
-  }
-
-  //unscramble the letters
-  for (let i = r.length - 1; i >= 0; i--) {
-    let sw = i + pass.substring(pi, pi + 1).charCodeAt(0); //swap position
-    sw = sw % r.length; //modulus remainder
-    let t = r[i]; r[i] = r[sw]; r[sw] = t;
-    pi--; if (pi < 0) pi = pass.length - 1;
-  }
-
-  //back to string, check crc, and return
-  let result = '';
-  for (let i = 0; i < r.length; i++) {
-    result += String.fromCharCode(r[i]);
-  }
-  let c = result.substring(result.lastIndexOf('.') + 1);
-  result = result.substring(0, result.lastIndexOf('.'));
-  if (c != crc(result, 4)) result = '';
-  result = result.substring(0, result.lastIndexOf('.'));
-  return result;
-}
-
-function crc(s, bytes) {
-  let r = 0;
-  for (let i = 0; i < s.length; i += bytes) {
-    let a = s.substring(i, i + bytes);
-    let x = 0;
-    for (let j = 0; j < bytes; j++) {
-      let char = a.charCodeAt(j);
-      if (char) x += char * Math.pow(256, j);
-    }
-    r = r ^ x;
-  }
-  return r;
-}
-
 function randomString(length, chars) {
   // to be able to control which characters to use
   if (!chars) chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%^&*()_+`~-=[]{}|/:;<>,';
@@ -348,7 +262,7 @@ function uniqueArray(a) {
 }
 
 // -------------------hash
-let hashSaltAdd = 'vjdDFG#^$421''
+let hashSaltAdd = 'vjdDFG#^$421'
 let hashPepperChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 
 function createHash(string, pepper) {
@@ -381,7 +295,7 @@ async function passwordChange(q, user) {
 
 //-----------------------------------------
 module.exports = {
-  isEmail, fetch, encr, decr, enc, dec, isNumeric, isDate, utcToLocal, showDate, dateAddSeconds, dateDiff,
+  isEmail, fetch, enc, dec, isNumeric, isDate, utcToLocal, showDate, dateAddSeconds, dateDiff,
   getFromTo, delFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, passwordChange,
 }

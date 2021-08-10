@@ -99,7 +99,7 @@ async function initServer() {
         //--------------------------jwt
         if( ![ 'passwordsendresettoken', 'passworduseresettoken',].includes(q.act) ) { //actions without token
           if (q.token) {
-            let t = func.decr(q.token, global.tokenPass); if (!t) t = func.decr(q.token, global.tokenPassLast);
+            let t = func.dec(q.token, global.tokenPass); if (!t) t = func.dec(q.token, global.tokenPassLast);
             if (t) user = JSON.parse(t);
           }
           if (q.act == 'refreshtoken') {
@@ -118,7 +118,7 @@ async function initServer() {
               res.end('{"error": "permission denied"}'); return;
             }
             r.issued = Date.now(); if (global.dbName == 'local') r.issued = 9999999999999 // for local debug
-            let token = func.encr(JSON.stringify(r), global.tokenPass)
+            let token = func.enc(JSON.stringify(r), global.tokenPass)
             delete r.pass;
             permissions.setPermissions(r)
             res.end(JSON.stringify({ "token": token, "user": r, "settings": await func.fetchSettings() })); return;
@@ -175,6 +175,7 @@ async function initServer() {
     }
 
   }).listen(port);
+  console.log('listen ' + port)
 
   ws.init(httpServer);
 }

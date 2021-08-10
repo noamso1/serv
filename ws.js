@@ -16,7 +16,7 @@ async function receive(ws, message) {
   //if (ws.user) ws.ping = now()
   let q = JSON.parse(message)
   if (q.act == 'login' && q.token) {
-    let t = func.decr(q.token, global.tokenPass); if(!t) t = func.decr(q.token, global.tokenPassLast)
+    let t = func.dec(q.token, global.tokenPass); if(!t) t = func.dec(q.token, global.tokenPassLast)
     if (t) {
       clients.push(ws)
       ws.user = JSON.parse(t)
