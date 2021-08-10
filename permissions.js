@@ -6,7 +6,7 @@ function setPermissions(user) {
     user.perm = []
     if (user.role == 'admin') {
       user.perm = [
-        { "col": "users", "act": "find" },
+        { "col": "users", "act": "find", "project": { pass: 0, passSalt: 0 } },
         { "col": "users", "act": "insert" },
         { "col": "users", "act": "update" },
         { "col": "users", "act": "delete" },
@@ -27,36 +27,37 @@ async function checkPermissions(q, user) {
   // check if has permissions, and add conditions to query and data
   let action = q.act;
   if (action == 'push' || action == 'pull') action = 'update';
-  let thisPerm = user.perm.find(e => (!e.col || e.col == q.col) && e.act == action);
-  if (!thisPerm) return 'no permission to ' + action + (q.col ? ' ' + q.col : '');
+  let perm = user.perm.find(e => (!e.col || e.col == q.col) && e.act == action);
+  if (!perm) return 'no permission to ' + action + (q.col ? ' ' + q.col : '');
 
   //queryAdd - add keys to search query
-  if (thisPerm.queryAdd) {
+  if (perm.queryAdd) {
     if (!q.query) q.query = {}
-    q.query = { ...q.query, ...thisPerm.queryAdd }
+    q.query = { ...q.query, ...perm.queryAdd }
   }
 
   //project - allow only certain keys to be projected
-  if (thisPerm.project) {
-    if (!q.project) q.project = {};
-    q.project = { ...q.project, ...thisPerm.project }
+  if (perm.project) {
+    if ( !q.project ) q.project = perm.project 
+    for ( let k in q.project ) if ( q.project[k] && perm.project[k] == 0 ) delete q.project[k]
+    if ( Object.keys(q.project).length == 0 ) q.project = perm.project
   }
 
   //dataFilter - allow only certain keys in inserted/updated docs
-  if (thisPerm.dataFilter) {
+  if (perm.dataFilter) {
     if (!q.data) q.data = [];
     for (let d of q.data) {
       for (let k in d) {
-        if(!thisPerm.dataFilter.includes(k)) d[k].delete
+        if(!perm.dataFilter.includes(k)) d[k].delete
       }
     }
   }
 
   //dataAdd - add some fixed values to all inserted/updated docs
-  if (thisPerm.dataAdd) {
+  if (perm.dataAdd) {
     if (!q.data) q.data = [];
     for (let i = 0; i < q.data.length; i++) {
-      q.data[i] = { ...q.data[i], ...thisPerm.dataAdd }
+      q.data[i] = { ...q.data[i], ...perm.dataAdd }
     }
   }
 

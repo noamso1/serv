@@ -80,39 +80,39 @@
   let qq = {
     "Login": { "act": "login", "query": { "email": "kiki@kiki.com", "pass": "1" } },
     "Refresh Token": { "act": "refreshtoken", "token": "!" },
-    "Find User": { "token": "!", "col": "users", "act": "find", "count": 1, "query": {"name": "kiki"}, "sums": ["price"] },
+    "Find User": { "token": "!", "act": "find", "col": "users", "count": 1, "query": {"name": "kiki"}, "sums": ["price"] },
     "Multiple Queries": {
       "token": "!",
       "queries": [{
-          "col": "users",
           "act": "find",
+          "col": "users",
           "limit": 1,
           "query": {}
         },
         {
-          "col": "settings",
           "act": "find",
+          "col": "settings",
           "limit": 1,
           "query": {}
         }
       ]
     },
-    "Insert User": { "token": "!", "col": "users", "act": "insert", "data": [{ "email": "kiki@kiki.com", "name": "kiki", "role": "admin", "pass": "1" }] },
-    "Update User": { "token": "!", "col": "users", "act": "update", "query": { "name": "bubu1" }, "data": { "age": 23 } },
-    "Delete User": { "token": "!", "col": "users", "act": "delete", "query": { "_id": "5ea55bacf368fa3e4770666a" } },
+    "Insert User": { "token": "!", "act": "insert", "col": "users", "data": [{ "email": "kiki@kiki.com", "name": "kiki", "role": "admin", "pass": "1" }] },
+    "Update User": { "token": "!", "act": "update", "col": "users", "query": { "name": "bubu1" }, "data": { "age": 23 } },
+    "Delete User": { "token": "!", "act": "delete", "col": "users", "query": { "_id": "5ea55bacf368fa3e4770666a" } },
     "Push to array":
       {
           "token": "!",
-          "col": "users",
           "act": "push",
+          "col": "users",
           "query": { "name": "kiki" },
           "data": { "notes": {"time": "123", "note": "hello"  } }
       },
     "Pull from array":
       {
           "token": "!",
-          "col": "users",
           "act": "pull",
+          "col": "users",
           "query": {
               "name": "kiki"
           },
