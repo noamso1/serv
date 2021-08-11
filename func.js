@@ -208,24 +208,17 @@ async function fetchSettings() {
   return settingsCache;
 }
 
-async function getSettings(field, unit, def) {
+async function getSettings(field, user) {
   let a = await fetchSettings();
   if (a) a = a.settings;
-  if (unit) {
-    a = a.find((e) => e.name == field && e.unit == unit);
+console.log(a)
+
+  if (user?.unit) {
+    a = a.find((e) => e.name == field && e.unit == user.unit);
   } else {
     a = a.find((e) => e.name == field && !e.unit);
   }
-  let v = def;
-  if (a && a.value) {
-    v = a.value;
-    if (a.type == "integer") v = parseInt(v);
-    if (a.type == "float") v = parseFloat(v);
-    if (a.type == "array") v = v.split(",");
-    if (a.type == "object") v = JSON.parse(v);
-    if (a.type == "boolean") { if (v.toLowerCase() == "true") { v = true } else { v = false } };
-  }
-  return v;
+  if (a?.value) return a.value
 }
 
 function clone(obj) {
