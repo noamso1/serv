@@ -23,8 +23,6 @@ async function validate(q, user) {
           if (found) return { "error": field + ' ' + item[field] + ' already exists' };
         }
       }
-      // autoincrement
-      if (q.col == 'jobs' && q.act == 'insert' && !item.id) { item.id = await func.getSeedInc("jobs") }
     }
   }
 

@@ -96,7 +96,6 @@ async function initServer() {
         // make sure q.data is an array of objects
         if (!q.data) q.data = []; if (typeof q.data == 'object' && !Array.isArray(q.data)) q.data = [q.data]
 
-func.getSettings('noam')
         //--------------------------jwt
         if( ![ 'passwordsendresettoken', 'passworduseresettoken',].includes(q.act) ) { //actions without token
           if (q.token) {
