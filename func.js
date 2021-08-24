@@ -186,14 +186,15 @@ function getFromTo(a, start, f, t) {
   return a.substring(x1, x2);
 }
 
-function delFromTo(a, start, f, t, delf, delt) {
+
+function replaceFromTo(a, start, f, t, rep, delf, delt) {
   var x0, x1, x2, x1a, x2a;
-  x1 = a.indexOf(f, start); if (x1 == -1) return "";
+  x1 = a.indexOf(f, start); if (x1 == -1) return a;
   x1 += f.length;
-  x2 = a.indexOf(t, x1); if (x2 == -1) return "";
+  x2 = a.indexOf(t, x1); if (x2 == -1) return a;
   if (delf) x1 -= f.length
   if (delt) x2 += t.length
-  return a.substring(0, x1) + a.substring(x2, a.length);
+  return a.substring(0, x1) + rep + a.substring(x2, a.length);
 }
 
 let settingsCache, settingsCacheDate = 0
@@ -289,6 +290,6 @@ async function passwordChange(q, user) {
 //-----------------------------------------
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, utcToLocal, showDate, dateAddSeconds, dateDiff,
-  getFromTo, delFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
+  getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, passwordChange,
 }
