@@ -8,7 +8,7 @@ const http = require('http');
 // curl localhost:2222/ppp|s|a|some+test --- password set a = some+text
 // curl localhost:2222/ppp|g|a           --- password get a
 
-let port = 2222, dict = {}, pass = 'ppp', L = pass.length
+let port = 2222, pass = 'ppp', dict = {}
 
 let httpServer = http.createServer(async function (req, res) {
   let r = req.url.slice(1).split('|')
