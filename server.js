@@ -86,8 +86,11 @@ async function initServer() {
       }); //cors
       req.on('data', function (data) { buf += data; });
       req.on('end', async function () {
+ 
+        // log 
+        { let a = buf; a = a.replace(/\n/g, ''); a = func.replaceFromTo(a, '', '"token":"', '"', '...'); console.log('=== ' + a.substring(0,100) ) }
 
-        let user = undefined, r = {}, t;
+        let user, r = {};
         // filter out script injection
         buf = buf.replace(/</g, '[').replace(/>/g, ']').replace(/javascript/ig, 'java script').replace(/\$where/ig, 'where')
         // parse the json input
@@ -139,7 +142,7 @@ async function initServer() {
 
           // permissions
           if(user) {
-            t = await permissions.checkPermissions(q, user);
+            let t = await permissions.checkPermissions(q, user);
             if (t) { res.end('{"error": "' + t + '"}'); return; }
           }
 

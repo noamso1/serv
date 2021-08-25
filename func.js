@@ -186,7 +186,6 @@ function getFromTo(a, start, f, t) {
   return a.substring(x1, x2);
 }
 
-
 function replaceFromTo(a, start, f, t, rep, delf, delt) {
   var x0, x1, x2, x1a, x2a;
   x1 = a.indexOf(f, start); if (x1 == -1) return a;
