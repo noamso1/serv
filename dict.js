@@ -4,10 +4,11 @@ process.on('uncaughtException', function (err) { console.error(err); });
 process.on('unhandledRejection', function (err) { console.log('unhandledRejection Error: ' + err.stack); });
 const http = require('http');
 
-let port = 2222, dict = {}, pass = 'ppp', L = pass.length
-
+// DICT.JS = CACHE DICTIONARY SERVER (REDIS REPLACER)
 // curl localhost:2222/ppp|s|a|some+test --- password set a = some+text
 // curl localhost:2222/ppp|g|a           --- password get a
+
+let port = 2222, dict = {}, pass = 'ppp', L = pass.length
 
 let httpServer = http.createServer(async function (req, res) {
   let r = req.url.slice(1).split('|')
