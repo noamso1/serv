@@ -3,27 +3,11 @@
 const mongodb = require('mongodb');
 const validate = require('./validate.js');
 const func = require('./func.js');
+const migrations = require('./migrations.js');
 
 async function dbConnect(dbConn, dbName) {
   let t = await mongodb.MongoClient.connect(dbConn, { useUnifiedTopology: true }); global.db = t.db(dbName);
-
-  // check if db is empty and create the first user
-  t = await global.db.collection("users").findOne({});
-  if (!t) {
-    let p = func.randomString(10)
-    let salt = func.randomString(10)
-    console.log('kiki first password ' + p)
-    let u = {
-      "email": "kiki@kiki.com",
-      "name": "kiki",
-      "role": "admin",
-      "passSalt" : salt,
-      "pass": func.createHash(p + salt)
-    }
-    let t = await global.db.collection("users").insertOne(u);
-    console.log('created first user')
-  }
-
+  await migrations.doit()
 }
 
 async function dbDo(q, user) {

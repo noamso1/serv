@@ -10,7 +10,6 @@ const dbm = require('./db.js');
 const sched = require('./sched.js');
 const ws = require('./ws.js');
 const env = require('./env.json');
-console.log(env.port)
 
 // load the arguments: node main.js db=local port=9999 ----> arg = {"db": "local", "port": "9999"}
 let arg = {};
@@ -29,8 +28,8 @@ let loginFails = []
 let port = arg.port; if (!port) port = env.port 
 global.dbName = arg.db; if (!global.dbName) global.dbName = env.dbName
 global.dbConn = arg.conn; if (!global.dbConn) global.dbConn = env.dbConn
-console.log(env.dbConn)
 
+// tokenPass
 global.tokenPass = func.randomString(30); tokenPassChange(); setInterval(tokenPassChange, 600 * 60000) // 3 hours
 function tokenPassChange() {
   global.tokenPassLast = global.tokenPass
