@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 "use strict"; ////
+const mongodb = require('mongodb');
 const validate = require('./validate.js');
 const func = require('./func.js');
-const mongodb = require('mongodb');
 
 async function dbConnect(dbConn, dbName) {
   let t = await mongodb.MongoClient.connect(dbConn, { useUnifiedTopology: true }); global.db = t.db(dbName);
