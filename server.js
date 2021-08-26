@@ -25,7 +25,7 @@ for (let i = 2; i < 999; i++) {
 
 // initial values
 let loginFails = []
-let port = arg.port; if (!port) port = env.port 
+global.port = arg.port; if (!global.port) global.port = env.port 
 global.dbName = arg.db; if (!global.dbName) global.dbName = env.dbName
 global.dbConn = arg.conn; if (!global.dbConn) global.dbConn = env.dbConn
 
@@ -42,7 +42,6 @@ initServer()
 
 async function initServer() {
   if (!global.db) await dbm.dbConnect(global.dbConn, global.dbName);
-  console.log("server started. port " + port + " db " + global.dbName)
   let httpServer = http.createServer(async function (req, res) {
     console.log('.');
 
@@ -178,8 +177,8 @@ async function initServer() {
       // And then you'll have in nodejs req.headers['x-forwarded-for']
     }
 
-  }).listen(port);
-  console.log('listen ' + port)
+  }).listen(global.port);
+  console.log('listening on port ' + global.port + ' db ' + global.dbName )
 
   ws.init(httpServer);
 }

@@ -211,8 +211,6 @@ async function fetchSettings() {
 async function getSettings(field, user) {
   let a = await fetchSettings();
   if (a) a = a.settings;
-console.log(a)
-
   if (user?.unit) {
     a = a.find((e) => e.name == field && e.unit == user.unit);
   } else {
