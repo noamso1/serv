@@ -276,6 +276,7 @@ async function passwordChange(q, user) {
   if (!q.email) return {ok: 0, error: "must specify email"}
   let u = await global.db.collection("users").findOne({email: q.email})
   if (!u) return {ok: 0, error: "user not found"}
+  let strength = passStrength(q.newPass); if (strength) return {ok:0, error: strength}
   if (!validateHash(q.oldPass + u.passSalt, u.pass)) return {ok: 0, error: "wrong old password"}
   let passSalt = randomString(10)
   let res = await global.db.collection("users").updateOne({email: q.email}, {"$set": {pass: createHash(q.newPass + passSalt), passSalt}})
@@ -283,10 +284,20 @@ async function passwordChange(q, user) {
 }
 
 
+function passStrength(pass) {
+  let pp = (pass + '').split('') , r = ''
+  let lower = 'abcdefghijklmnopqrstuvwxyz'
+  let upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  if ( pp.length < 8 ) r+= 'password must be at least 8 chars long. '
+  if ( !pp.some( e => lower.includes(e) ) ) r+= 'password must include lower case letters. '
+  if ( !pp.some( e => upper.includes(e) ) ) r+= 'password must include upper case letters. '
+  if ( !pp.some( e => !(lower + upper).includes(e) ) ) r+= 'password must include numeric of symbol characters. '
+  return r
+}
 
 //-----------------------------------------
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, utcToLocal, showDate, dateAddSeconds, dateDiff,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
-  createHash, validateHash, passwordChange,
+  createHash, validateHash, passwordChange, passStrength
 }
