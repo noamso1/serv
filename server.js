@@ -88,7 +88,7 @@ async function initServer() {
       req.on('end', async function () {
  
         // log 
-        { let a = buf; a = a.replace(/\n/g, ''); a = func.replaceFromTo(a, 0 , '"token"', '",', ':"...'); console.log('=== ' + a.substring(0,100) ); }
+        { let a = buf; a = a.replace(/\n/g, ''); a = func.replaceFromTo(a, 0 , '"token"', '",', ':"...'); a = func.replaceFromTo(a, 0 , '"token"', '"}', ':"...'); console.log('=== ' + a.substring(0,100) ); }
 
         let user, r = {};
         // filter out script injection
