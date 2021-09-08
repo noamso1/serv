@@ -88,7 +88,7 @@ async function initServer() {
       req.on('end', async function () {
  
         // log 
-        { let a = buf; a = a.replace(/\n/g, ''); a = func.replaceFromTo(a, '', '"token":"', '"', '...'); console.log('=== ' + a.substring(0,100) ) }
+        { let a = buf; a = a.replace(/\n/g, ''); a = func.replaceFromTo(a, 0 , '"token"', '",', ':"...'); console.log('=== ' + a.substring(0,100) ); }
 
         let user, r = {};
         // filter out script injection
@@ -166,10 +166,7 @@ async function initServer() {
     }
 
     function clientIP() {
-      let r = req.connection.remoteAddress
-      if( !r ) r = ''
-      if( !r || r.indexOf('127.0.0.1') >= 0 ) r = req.headers['x-forwarded-for']
-      if( !r ) r = ''
+      let r = req.headers['x-forwarded-for'] + ''; if ( r == '' ) r = req.connection.remoteAddress
       if (r.indexOf(':') >= 0) r = r.substring(r.lastIndexOf(':')+1, r.length)
       return r
       // To pass the IP address, edit /etc/nginx/nginx.conf, under http {} section add this line:
