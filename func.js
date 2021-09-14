@@ -41,6 +41,16 @@ function isDate(s) {
   if (!isNaN(Date.parse(s))) { return true; } else { return false; }
 }
 
+function isHour(s) {
+  if (!s) return false
+  let h = s.substring(0,2)
+  let m = s.substring(3,5)
+  if ( s.length != 5 || s.substring(2,3) != ':' ) return false
+  if ( Number(h) < 0 || Number(h) > 23 ) return false
+  if ( Number(m) < 0 || Number(m) > 59 ) return false
+  return true
+}
+
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
@@ -297,7 +307,7 @@ function passStrength(pass) {
 
 //-----------------------------------------
 module.exports = {
-  isEmail, fetch, enc, dec, isNumeric, isDate, utcToLocal, showDate, dateAddSeconds, dateDiff,
+  isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, passwordChange, passStrength
 }

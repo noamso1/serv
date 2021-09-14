@@ -5,7 +5,6 @@ const func = require('./func.js');
 
 async function validate(q, user) {
 
-  // ------------ check schema
   let schema = {
     fares: {
       code: 'increment',

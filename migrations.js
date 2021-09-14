@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 "use strict"
+const func = require('./func.js');
+
 async function doit() {
   let m = await global.db.collection("system").findOne({ "_id": "lastMigration" }); if ( !m ) m = { value: 0 }; m = m.value
   async function incrementMigration() {
@@ -11,7 +13,7 @@ async function doit() {
   if ( m < 1 ) {
     let t = await global.db.collection("users").findOne({});
     if (!t) {
-      let p = func.randomString(10)
+      let p = '1' //func.randomString(10)
       let salt = func.randomString(10)
       console.log('kiki first password ' + p)
       let u = {
