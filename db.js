@@ -39,6 +39,9 @@ async function dbDo(q, user) {
   else if (q.act == 'update') {
     r = await global.db.collection(q.col).updateMany(q.query, { $set: q.data[0] }, q.updateOptions)
   }
+  else if (q.act == 'upsert') {
+    r = await global.db.collection(q.col).updateMany(q.query, { $set: q.data[0] }, { upsert: true } )
+  }
   else if (q.act == 'push') {
     r = await global.db.collection(q.col).updateMany(q.query, { $push: q.data[0] }, q.updateOptions)
   }

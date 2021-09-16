@@ -37,12 +37,13 @@ async function validate(q, user) {
   if ( [ 'insert', 'update' ].includes(q.act) ) {
 
     for ( let item of q.data ) { 
+
       for ( let def of schema[q.col] ) {
         let f = def.name
         if ( q.act == 'insert' && def.mandatory && !item[f] ) return { "error": 'must insert ' + q.col + '.' + f };
         if ( q.act == 'insert' && !item[f] ) item[f] = '' 
         if ( ( q.act == 'insert' || q.act == 'update' ) && def.unique && item[f] ) {
-          let search = {}; search[f] = item[f]; if (q.act == 'update') search.$nor =  [ q.query ]
+          let search = {}; search[f] = item[f]; if (q.act == 'update') search.$nor = [ q.query ]
           let found = await global.db.collection(q.col).findOne(search)
           if (found) return { "error": f + ' ' + item[f] + ' already exists' };
         }

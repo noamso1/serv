@@ -27,6 +27,7 @@ async function checkPermissions(q, user) {
   // check if has permissions, and add conditions to query and data
   let action = q.act;
   if (action == 'push' || action == 'pull') action = 'update';
+  if (action == 'upsert' ) action = 'insert';
   let perm = user.perm.find(e => (!e.col || e.col == q.col) && e.act == action);
   if (!perm) return 'no permission to ' + action + (q.col ? ' ' + q.col : '');
 
