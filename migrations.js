@@ -3,7 +3,9 @@
 const func = require('./func.js');
 
 async function doit() {
+
   let m = await global.db.collection("system").findOne({ "_id": "lastMigration" }); if ( !m ) m = { value: 0 }; m = m.value
+
   async function incrementMigration() {
     m++
     await global.db.collection("system").updateOne( { "_id": "lastMigration" }, { "$set": { "value": m } }, { upsert: true} );
