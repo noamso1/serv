@@ -7,7 +7,7 @@ async function validate(q, user) {
 
   let schema = {
     users: {
-      allowExcessive: false,
+      allowExcessive: true,
       fields: [
         { name: "email", type: 'string', mandatory: true, unique: true },
         { name: "name", type: 'string', mandatory: false, unique: false },
