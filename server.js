@@ -29,14 +29,6 @@ global.port = arg.port; if (!global.port) global.port = env.port
 global.dbName = arg.db; if (!global.dbName) global.dbName = env.dbName
 global.dbConn = arg.conn; if (!global.dbConn) global.dbConn = env.dbConn
 
-// tokenPass
-global.tokenPass = func.randomString(30); tokenPassChange(); setInterval(tokenPassChange, 600 * 60000) // 3 hours
-function tokenPassChange() {
-  global.tokenPassLast = global.tokenPass
-  global.tokenPass = func.randomString(30)
-  if (global.dbName == 'local') global.tokenPass = '1' // for debug in localhost
-}
-
 // start the server
 initServer()
 
@@ -89,6 +81,23 @@ async function initServer() {
  
         // log 
         { let a = buf; a = a.replace(/\n/g, ''); a = func.replaceFromTo(a, 0 , '"token"', '",', ':"...'); a = func.replaceFromTo(a, 0 , '"token"', '"}', ':"...'); console.log('=== ' + a.substring(0,100) ); }
+
+        // tokenPass
+        if ( !global.tokenPass ) {
+          let t
+          t = await db.collection('system').findOne( { _id: 'tokenPass' } )
+          global.tokenPass = t?.value
+          t = await db.collection('system').findOne( { _id: 'tokenPassLast' } )
+          global.tokenPassLast = t?.value
+          if ( !global.tokenPass ) { global.tokenPass = func.randomString(50); tokenPassChange(); }
+          setInterval(tokenPassChange, 30 * 60000)
+          function tokenPassChange() {
+            global.tokenPassLast = global.tokenPass
+            global.tokenPass = func.randomString(50)
+            db.collection('system').updateOne( { _id: 'tokenPass' }, { $set: { value: global.tokenPass } }, { upsert: true } )
+            db.collection('system').updateOne( { _id: 'tokenPassLast' }, { $set: { value: global.tokenPassLast } }, { upsert: true } )
+          }
+        }
 
         let user, r = {};
         // filter out script injection
