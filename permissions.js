@@ -16,19 +16,19 @@ function setPermissions(user) {
   user.perm.push ( { "act": "passwordchange", "queryAdd": { "email": user.email } } )
 }
 
-async function checkPermissions(q, user) {
+async function checkPermissions(q) {
   // { "col": "users", "act": "insert", "queryAdd": { "site": 12, "username": "kiki" }, "dataAdd": {"role": user.role} },
-  setPermissions(user)
+  setPermissions(q.user)
 
   // show and insert only my unit
-  if (user.unit && q.query) q.query.unit = user.unit;
-  if (user.unit && q.data) for (let d of q.data) { d.unit = user.unit }
+  if (q.user.unit && q.query) q.query.unit = q.user.unit;
+  if (q.user.unit && q.data) for (let d of q.data) { d.unit = q.user.unit }
 
   // check if has permissions, and add conditions to query and data
   let action = q.act;
   if (action == 'push' || action == 'pull') action = 'update';
   if (action == 'upsert' ) action = 'insert';
-  let perm = user.perm.find(e => (!e.col || e.col == q.col) && e.act == action);
+  let perm = q.user.perm.find(e => (!e.col || e.col == q.col) && e.act == action);
   if (!perm) return 'no permission to ' + action + (q.col ? ' ' + q.col : '');
 
   //queryAdd - add keys to search query
@@ -72,7 +72,7 @@ async function checkPermissions(q, user) {
     let x = global.revokedUsers.indexOf(q.query._id + '')
     if (x >= 0) global.revokedUsers.splice(x, 1)
   }
-  if (global.revokedUsers.includes(user._id + '')) return 'user disabled'
+  if (global.revokedUsers.includes(q.user._id + '')) return 'user disabled'
 
 }
 

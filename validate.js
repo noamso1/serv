@@ -3,7 +3,7 @@
 const ObjectId = require('mongodb').ObjectId;
 const func = require('./func.js');
 
-async function validate(q, user) {
+async function validate(q) {
 
   let schema = {
     users: {

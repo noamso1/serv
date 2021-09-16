@@ -10,9 +10,9 @@ async function dbConnect(dbConn, dbName) {
   await migrations.doit()
 }
 
-async function dbDo(q, user) {
+async function dbDo(q) {
   let r = {};
-  let vres = await validate(q, user); if (vres.error) return vres;
+  let vres = await validate(q); if (vres.error) return vres;
 
   if (q.act == 'find' && q.count) {
     if (q.count) r.count = await global.db.collection(q.col).find(q.query,{}).count()

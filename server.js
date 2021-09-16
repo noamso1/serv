@@ -69,90 +69,82 @@ async function initServer() {
     // ----------------------------- API
     if (req.method == 'POST') {
       let q = {}, buf = '';
-      res.writeHead(200, {
-        "Content-Type": "text/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
-        "Access-Control-Max-Age": 86400,
-        "Connection": "close"
-      }); //cors
       req.on('data', function (data) { buf += data; });
       req.on('end', async function () {
- 
         // log 
         { let a = buf; a = a.replace(/\n/g, ''); a = func.replaceFromTo(a, 0 , '"token"', '",', ':"...'); a = func.replaceFromTo(a, 0 , '"token"', '"}', ':"...'); console.log('=== ' + a.substring(0,100) ); }
-
-        // tokenPass
-        if ( !global.tokenPass ) {
-          let t
-          t = await db.collection('system').findOne( { _id: 'tokenPass' } )
-          global.tokenPass = t?.value
-          t = await db.collection('system').findOne( { _id: 'tokenPassLast' } )
-          global.tokenPassLast = t?.value
-          if ( !global.tokenPass ) { global.tokenPass = func.randomString(50); tokenPassChange(); }
-          setInterval(tokenPassChange, 30 * 60000)
-          function tokenPassChange() {
-            global.tokenPassLast = global.tokenPass
-            global.tokenPass = func.randomString(50)
-            db.collection('system').updateOne( { _id: 'tokenPass' }, { $set: { value: global.tokenPass } }, { upsert: true } )
-            db.collection('system').updateOne( { _id: 'tokenPassLast' }, { $set: { value: global.tokenPassLast } }, { upsert: true } )
-          }
-        }
-
-        let user, r = {};
         // filter out script injection
         buf = buf.replace(/</g, '[').replace(/>/g, ']').replace(/javascript/ig, 'java script').replace(/\$where/ig, 'where')
         // parse the json input
-        try { q = JSON.parse(buf); } catch (error) { res.end(JSON.stringify({ "error": "invalid json" })); return; }
-
+        try { q = JSON.parse(buf); } catch (error) { reply( { error: "invalid json" } ); return }
         // make sure q.data is an array of objects
         if (!q.data) q.data = []; if (typeof q.data == 'object' && !Array.isArray(q.data)) q.data = [q.data]
 
+        delete q.user
         //--------------------------jwt
         if( ![ 'passwordsendresettoken', 'passworduseresettoken',].includes(q.act) ) { //actions without token
+
+          // tokenPass
+          if ( !global.tokenPass ) {
+            let t
+            t = await db.collection('system').findOne( { _id: 'tokenPass' } )
+            global.tokenPass = t?.value
+            t = await db.collection('system').findOne( { _id: 'tokenPassLast' } )
+            global.tokenPassLast = t?.value
+            if ( !global.tokenPass ) { global.tokenPass = func.randomString(50); tokenPassChange(); }
+            setInterval(tokenPassChange, 30 * 60000)
+            function tokenPassChange() {
+              global.tokenPassLast = global.tokenPass
+              global.tokenPass = func.randomString(50)
+              db.collection('system').updateOne( { _id: 'tokenPass' }, { $set: { value: global.tokenPass } }, { upsert: true } )
+              db.collection('system').updateOne( { _id: 'tokenPassLast' }, { $set: { value: global.tokenPassLast } }, { upsert: true } )
+            }
+          }
+
           if (q.token) {
             let t = func.dec(q.token, global.tokenPass); if (!t) t = func.dec(q.token, global.tokenPassLast);
-            if (t) user = JSON.parse(t);
+            if (t) q.user = JSON.parse(t);
           }
           if (q.act == 'refreshtoken') {
-            if (!user || !user.email) { res.end(JSON.stringify({ error: "bad token" })); return }
-            q.act = 'login'; q.actWas = 'refreshtoken'; q.query = { "email": user.email, "passHash": user.pass }
+            if (!q.user || !q.user.email) { reply( { error: "bad token" } ); return }
+            q.act = 'login'; q.actWas = 'refreshtoken'; q.query = { "email": q.user.email, "passHash": q.user.pass }
           }
           if (q.act == 'login' && q.query) {
             let ip = clientIP(), now = (new Date()).getTime()
             let fails = loginFails.filter(a => (a.ip == ip || a.email == q.query.email) && a.time > now - 60000)
-            if (fails.length >= 4) { res.end('{"error": "too many login tries, please wait a few seconds."}'); return; }
-            r = await global.db.collection("users").findOne({ email: q.query.email.toLowerCase() });
+            if (fails.length >= 4) { reply( { error: 'too many login tries, please wait a few seconds.'} ); return; }
+            let r = await global.db.collection("users").findOne({ email: q.query.email.toLowerCase() });
             if (r) { if (!func.validateHash(q.query.pass + r.passSalt, r.pass) && q.query.passHash != r.pass ) r = undefined; }
             if (!r) {
               loginFails = loginFails.filter(a => a.time > now - 60000)
               loginFails.push({ "ip": ip, "email": q.query.email, "time": now });
-              res.end('{"error": "permission denied"}'); return;
+              reply( { error: 'permission denied' } ); return;
             }
             r.issued = Date.now(); if (global.dbName == 'local') r.issued = 9999999999999 // for local debug
             let token = func.enc(JSON.stringify(r), global.tokenPass)
             delete r.pass;
             permissions.setPermissions(r)
-            res.end(JSON.stringify({ "token": token, "user": r, "settings": await func.fetchSettings() })); return;
+            reply( { token, user: r, settings: await func.fetchSettings() } ); return;
           }
-          if (!user) { res.end('{"error": "invalid token"}'); return; }
-          let tokenAge = ((new Date()).getTime() - user.issued) / 60000 // minutes
+          if (!q.user) { reply( { error: 'invalid token' } ); return; }
+          let tokenAge = ((new Date()).getTime() - q.user.issued) / 60000 // minutes
           let tokenDie = 5;
-          if (tokenAge >= tokenDie) { res.end('{"error": "token expired"}'); return; }
+          if (tokenAge >= tokenDie) { reply( { error: 'token expired' } ); return; }
         }
         //-------------------------------------------
 
         // handle multiple queries
         let multiple = false, results = [], queries = q.queries;
         if (queries) { multiple = true } else { queries = [{ ...q }] }
+        let r = {}
 
         for (q of queries) {
           if (q.act) q.act = q.act.toLowerCase();
 
           // permissions
-          if(user) {
-            let t = await permissions.checkPermissions(q, user);
-            if (t) { res.end('{"error": "' + t + '"}'); return; }
+          if(q.user) {
+            let t = await permissions.checkPermissions(q);
+            if (t) { reply( { error: t } ); return; }
           }
 
           dbm.convertMongoIds(q.query)
@@ -163,15 +155,29 @@ async function initServer() {
 
           // actions
           if (q.act == 'passwordchange') r = await func.passwordChange(q);
-          if (['find', 'insert', 'update', 'upsert', 'delete', 'push', 'pull'].includes(q.act)) r = await dbm.dbDo(q, user);
+          if (['find', 'insert', 'update', 'upsert', 'delete', 'push', 'pull'].includes(q.act)) r = await dbm.dbDo(q);
 
           results.push(r);
         }
 
         // response
         if (multiple) { r = { "results": results } } else { r = results[0] }
-        res.end(JSON.stringify(r)); return;
+        reply( r ); return;
       });
+    }
+
+    function reply(r) {
+      let statusCode = 200; if (r.error || r.ok == 0) statusCode = 400
+      res.writeHead(statusCode, {
+        "Content-Type": "text/json",
+        "Access-Control-Allow-Origin": "*", //cors
+        "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+        "Access-Control-Max-Age": 86400,
+        "Connection": "close"
+      });
+      res.end(JSON.stringify(r))
+      if ( arg.logAll ) func.addLog('../log.txt', new Date().toISOString() + ' ' + req.connection.remoteAddress + ' RES\n' + JSON.stringify(r) + '\n')
+      return
     }
 
     function clientIP() {
