@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 "use strict";
-const ObjectId = require('mongodb').ObjectId;
 const func = require('./func.js');
 
 async function validate(q) {
