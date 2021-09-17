@@ -1,0 +1,20 @@
+version: "3"
+services:
+  app:
+    container_name: app
+    restart: always
+    build: ./
+    volumes:
+      - ./:/app
+      - /node_modules/
+      - /.git/
+    ports:
+      - "1111:1111"
+    links:
+      - mongo
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - "27017:27017"
+
