@@ -9,11 +9,11 @@ function init(server) {
     ws.on('close', function (ws) { clients.splice(clients.indexOf(ws), 1) })
     ws.on('error', function (ws) { clients.splice(clients.indexOf(ws), 1) })
   })
-  //setInterval(function() { clients = clients.filter(e => e.ping > now() - 300000) }, 120000);  //purge
+  //setInterval(function() { clients = clients.filter(e => e.ping > Date.now() - 300000) }, 120000);  //purge
 }
 
 async function receive(ws, message) {
-  //if (ws.user) ws.ping = now()
+  //if (ws.user) ws.ping = Date.now()
   let q = JSON.parse(message)
   if (q.act == 'login' && q.token) {
     let t = func.dec(q.token, global.tokenPass); if(!t) t = func.dec(q.token, global.tokenPassLast)
@@ -56,10 +56,6 @@ function broadcast(group, message) {
   for (ws of clients) {
     if (!group || (Array.isArray(ws.groups) && ws.groups.includes(group))) ws.send(m)
   }
-}
-
-function now() {
-  return (new Date()).getTime()
 }
 
 module.exports = { broadcast, init }

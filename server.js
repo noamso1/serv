@@ -110,7 +110,7 @@ async function initServer() {
             q.act = 'login'; q.actWas = 'refreshtoken'; q.query = { "email": q.user.email, "passHash": q.user.pass }
           }
           if (q.act == 'login' && q.query) {
-            let ip = clientIP(), now = (new Date()).getTime()
+            let ip = clientIP(), now = Date.now()
             let fails = loginFails.filter(a => (a.ip == ip || a.email == q.query.email) && a.time > now - 60000)
             if (fails.length >= 4) { reply( { error: 'too many login tries, please wait a few seconds.'} ); return; }
             let r = await global.db.collection("users").findOne({ email: q.query.email.toLowerCase() });
@@ -127,7 +127,7 @@ async function initServer() {
             reply( { token, user: r, settings: await func.fetchSettings() } ); return;
           }
           if (!q.user) { reply( { error: 'invalid token' } ); return; }
-          let tokenAge = ((new Date()).getTime() - q.user.issued) / 60000 // minutes
+          let tokenAge = (Date.now() - q.user.issued) / 60000 // minutes
           let tokenDie = 5;
           if (tokenAge >= tokenDie) { reply( { error: 'token expired' } ); return; }
         }

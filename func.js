@@ -208,10 +208,10 @@ function replaceFromTo(a, start, f, t, rep, delf, delt) {
 let settingsCache, settingsCacheDate = 0
 async function fetchSettings() {
   //only fetch from db every 10 seconds..
-  if (((new Date()).getTime() - settingsCacheDate) > 10000) {
+  if ((Date.now() - settingsCacheDate) > 10000) {
     let s = {};
     s.settings = await global.db.collection("settings").find({}).toArray();
-    settingsCache = s; settingsCacheDate = (new Date()).getTime()
+    settingsCache = s; settingsCacheDate = Date.now()
   }
   if (!settingsCache) settingsCache = [];
   return settingsCache;
