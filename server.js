@@ -46,7 +46,7 @@ async function initServer() {
       if (u.indexOf('..') >= 0) { res.end(); return; }
 
       //default document
-      if (u == 'admin/' || u === 'admin' || u == '' || u.includes('/admin/index.htm')) { res.writeHead(302, { 'Location': '/admin/index.htm' }); res.end(); return; }
+      if ( u == 'admin/' || u === 'admin' || u == '' ) { res.writeHead(302, { 'Location': '/admin/index.html' }); res.end(); return; }
 
       //allow only these locations
       if ( !u.startsWith('admin/') ) { res.end('access denied'); return; }
@@ -62,6 +62,7 @@ async function initServer() {
       if (ext == 'jpg') head = { 'Content-Type': 'image/jpeg', "Cache-Control": "max-age=86400" };
       if (ext == 'svg') head = { 'Content-Type': 'image/svg+xml', "Cache-Control": "max-age=86400" };
       if (ext == 'htm') head = { 'Content-Type': 'text/html', "Cache-Control": "max-age=86400" };
+      if (ext == 'html') head = { 'Content-Type': 'text/html', "Cache-Control": "max-age=86400" };
       if (ext == 'zip') head = { 'Content-Type': 'application/zip', "Cache-Control": "max-age=86400" };
       if (head) { res.writeHead(200, head); res.end(fs.readFileSync(u)); return; } else { res.end('Not Found'); return; }
     }

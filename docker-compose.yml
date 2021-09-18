@@ -3,13 +3,15 @@ services:
   app:
     container_name: app
     restart: always
-    build: ./
+    build:
+      context: ./
+      dockerfile: dockerfile
+    ports:
+      - "1111:1111"
     volumes:
       - ./:/app
       - /node_modules/
       - /.git/
-    ports:
-      - "1111:1111"
     links:
       - mongo
   mongo:
