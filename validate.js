@@ -80,7 +80,7 @@ async function validate(q) {
             for ( let i = 0; i < item[f].length; i++ ) { item[f][i] = Number(item[f][i]) }
           }
 
-          if ( def.type == 'number' && ( q.act == 'insert' || item[f] ) ) {
+          if ( def.type == 'number' && ( q.act == 'insert' || func.isNumeric( item[f] ) ) ) {
             if ( !item[f] || !func.isNumeric(item[f]) ) item[f] = 0
             item[f] = Number(item[f])
           } 
