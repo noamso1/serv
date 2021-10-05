@@ -218,14 +218,15 @@ async function fetchSettings() {
 }
 
 async function getSettings(field, user) {
-  let a = await fetchSettings();
-  if (a) a = a.settings;
-  if (user?.unit) {
-    a = a.find((e) => e.name == field && e.unit == user.unit);
-  } else {
-    a = a.find((e) => e.name == field && !e.unit);
+  let a, v = '', ss = await fetchSettings()
+  ss = ss?.settings
+  ss.sort((a, b) => (a.unit > b.unit || !b.unit) ? 1 : -1) // undefined on top
+  for ( let s of ss ) {
+    if (!s.unit || s.unit == user?.unit || user?.unit && s.unit == user.unit.substring(0, user.unit.indexOf('/')) ) {
+      v = s.value
+    }
   }
-  if (a?.value) return a.value
+  return v;
 }
 
 function clone(obj) {

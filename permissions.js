@@ -20,9 +20,20 @@ async function checkPermissions(q) {
   // { "col": "users", "act": "insert", "queryAdd": { "site": 12, "username": "kiki" }, "dataAdd": {"role": user.role} },
   setPermissions(q.user)
 
-  // show and insert only my unit
-  if (q.user.unit && q.query) q.query.unit = q.user.unit;
-  if (q.user.unit && q.data) for (let d of q.data) { d.unit = q.user.unit }
+  // read / write only my unit - supoort hirarchy parent/child unit
+  // if (q.user.unit && q.query) q.query.unit = q.user.unit;
+  // if (q.user.unit && q.data) for (let d of q.data) { d.unit = q.user.unit }
+  if ( q.user?.unit ) {
+    if ( !(q.act === 'find' && q.col === 'settings' ) ) {
+      if ( !q.query ) q.query = {}; if ( !q.query.$and ) q.query.$and = []
+      q.query.$and.push( { $or: [ { unit: q.user.unit }, { unit: { $regex: '^' + q.user.unit + '/' } } ] } )
+    }
+    if ( q.data ) {
+      for (let d of q.data) {
+        if ( d.unit != q.user.unit && q.user.unit != d.unit.substring(0, d.unit.indexOf('/')) ) d.unit = q.user.unit 
+      }
+    }
+  }
 
   // check if has permissions, and add conditions to query and data
   let action = q.act;
