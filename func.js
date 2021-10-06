@@ -222,8 +222,10 @@ async function getSettings(field, user) {
   ss = ss?.settings
   ss.sort((a, b) => (a.unit > b.unit || !b.unit) ? 1 : -1) // undefined on top
   for ( let s of ss ) {
-    if (!s.unit || s.unit == user?.unit || user?.unit && s.unit.startsWith(user.unit + '/') ) {
-      v = s.value
+    if ( s.name.toLowerCase() == field.toLowerCase() ) {
+      if (!s.unit || s.unit == user?.unit || user?.unit && s.unit.startsWith(user.unit + '/') ) {
+        v = s.value
+      }
     }
   }
   return v;
