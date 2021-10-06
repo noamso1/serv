@@ -30,7 +30,7 @@ async function checkPermissions(q) {
     }
     if ( q.data ) {
       for (let d of q.data) {
-        if ( d.unit != q.user.unit && q.user.unit != d.unit.substring(0, d.unit.indexOf('/')) ) d.unit = q.user.unit 
+        if ( d.unit != q.user.unit && !d.unit.startsWith(q.user.unit + '/') ) d.unit = user.unit
       }
     }
   }
