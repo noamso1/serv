@@ -82,8 +82,7 @@ async function initServer() {
         delete q.user
 
         // actions without token
-        if (q.act == 'passwordsendresettoken') { q.host = req.headers.origin; reply( await func.passwordSendResetToken(q) ); return; }
-        if (q.act == 'passworduseresettoken') { reply( await func.passwordUseResetToken(q) ); return; }
+        if (q.act == 'publicEndPoint') { reply( { ok: 1 } ); return; }
 
         // login / jwt
         {
@@ -138,6 +137,7 @@ async function initServer() {
         for (q of q.queries) {
           let r = {}
           if (!q.data) q.data = []; if (typeof q.data == 'object' && !Array.isArray(q.data)) q.data = [q.data]
+          q.origin = req.headers.origin
 
           // permissions
           if(q.user) {
