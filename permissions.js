@@ -38,7 +38,7 @@ q.user.unit = 'test'
     if ( q.data ) {
       for (let d of q.data) {
         if ( action == 'insert' && !d.unit ) d.unit = q.user.unit
-        if ( d.hasOwnProperty('unit') && d.unit != q.user.unit && !d?.unit.startsWith(q.user.unit + '/') ) d.unit = q.user.unit
+        if ( d.hasOwnProperty('unit') && !(d.unit + '/').startsWith(q.user.unit + '/') ) d.unit = q.user.unit
       }
     }
   }
