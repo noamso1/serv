@@ -18,7 +18,6 @@ function setPermissions(user) {
 
 async function checkPermissions(q) {
 
-q.user.unit = 'test'
   // { "col": "users", "act": "insert", "queryAdd": { "site": 12, "username": "kiki" }, "dataAdd": {"role": user.role} },
   setPermissions(q.user)
 

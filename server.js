@@ -78,13 +78,15 @@ async function initServer() {
         buf = buf.replace(/</g, '[').replace(/>/g, ']').replace(/javascript/ig, 'java script').replace(/\$where/ig, 'where')
         // parse the json input
         try { q = JSON.parse(buf); } catch (error) { reply( { error: "invalid json" } ); return }
-        // make sure q.data is an array of objects
-        if (!q.data) q.data = []; if (typeof q.data == 'object' && !Array.isArray(q.data)) q.data = [q.data]
 
         delete q.user
-        //--------------------------jwt
-        if( ![ 'passwordsendresettoken', 'passworduseresettoken',].includes(q.act) ) { //actions without token
 
+        // actions without token
+        if (q.act == 'passwordsendresettoken') { q.host = req.headers.origin; reply( await func.passwordSendResetToken(q) ); return; }
+        if (q.act == 'passworduseresettoken') { reply( await func.passwordUseResetToken(q) ); return; }
+
+        // login / jwt
+        {
           // tokenPass
           if ( !global.tokenPass ) {
             let t
@@ -101,7 +103,6 @@ async function initServer() {
               db.collection('system').updateOne( { _id: 'tokenPassLast' }, { $set: { value: global.tokenPassLast } }, { upsert: true } )
             }
           }
-
           if (q.token) {
             let t = func.dec(q.token, global.tokenPass); if (!t) t = func.dec(q.token, global.tokenPassLast);
             if (t) q.user = JSON.parse(t);
@@ -129,18 +130,14 @@ async function initServer() {
           }
           if (!q.user) { reply( { error: 'invalid token' } ); return; }
           let tokenAge = (Date.now() - q.user.issued) / 60000 // minutes
-          let tokenDie = 5;
-          if (tokenAge >= tokenDie) { reply( { error: 'token expired' } ); return; }
+          if (tokenAge >= 5) { reply( { error: 'token expired' } ); return; }
         }
-        //-------------------------------------------
 
-        // handle multiple queries
-        let multiple = false, results = [], queries = q.queries;
-        if (queries) { multiple = true } else { queries = [{ ...q }] }
-        let r = {}
-
-        for (q of queries) {
-          if (q.act) q.act = q.act.toLowerCase();
+        // handle the query
+        let multiple = false, results = []; if ( q.queries ) { multiple = true } else { q.queries = [q] }
+        for (q of q.queries) {
+          let r = {}
+          if (!q.data) q.data = []; if (typeof q.data == 'object' && !Array.isArray(q.data)) q.data = [q.data]
 
           // permissions
           if(q.user) {
@@ -150,10 +147,6 @@ async function initServer() {
 
           dbm.convertMongoIds(q.query)
 
-          // actions without token
-          if (q.act == 'passwordsendresettoken') { q.host = req.headers.origin; r = await func.passwordSendResetToken(q); }
-          if (q.act == 'passworduseresettoken') r = await func.passwordUseResetToken(q)
-
           // actions
           if (q.act == 'passwordchange') r = await func.passwordChange(q);
           if (['find', 'insert', 'update', 'upsert', 'delete', 'push', 'pull'].includes(q.act)) r = await dbm.dbDo(q);
@@ -162,8 +155,8 @@ async function initServer() {
         }
 
         // response
-        if (multiple) { r = { "results": results } } else { r = results[0] }
-        reply( r ); return;
+        if ( multiple ) { reply( { results } ) } else { reply( results[0] ) }
+        return
       });
     }
 
