@@ -1,7 +1,7 @@
 {
   "port": 1111,
   "dbConn": "mongodb://localhost:27017",
-  "dbName": "local",
+  "dbName": "serv",
   "dictPort": 2222,
   "dictPass": "ppp"
 }

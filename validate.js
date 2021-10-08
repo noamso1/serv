@@ -118,4 +118,4 @@ async function validate(q) {
   return {};
 }
 
-module.exports = validate;
+module.exports = validate
