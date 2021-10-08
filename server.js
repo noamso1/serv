@@ -11,7 +11,7 @@ const sched = require('./sched.js');
 const ws = require('./ws.js');
 const env = require('./env.json');
 
-// load the arguments: node main.js db=local port=9999 ----> arg = {"db": "local", "port": "9999"}
+// load the arguments: node main.js db=serv port=9999 ----> arg = {"db": "serv", "port": "9999"}
 let arg = {};
 for (let i = 2; i < 999; i++) {
   let a = process.argv[i];
@@ -121,7 +121,7 @@ async function initServer() {
               loginFails.push({ "ip": ip, "email": q.query.email, "time": now });
               reply( { error: 'permission denied' } ); return;
             }
-            r.issued = Date.now(); if (global.dbName == 'local') r.issued = 9999999999999 // for local debug
+            r.issued = Date.now(); if (global.dbName == 'serv') r.issued = 9999999999999 // for local debug
             let token = func.enc(JSON.stringify(r), global.tokenPass)
             delete r.pass;
             permissions.setPermissions(r)
