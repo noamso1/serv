@@ -9,35 +9,35 @@ async function validate(q) {
       allowExcessive: true,
       fields: [
         { name: "email", type: 'string', mandatory: true, unique: true },
-        { name: "name", type: 'string', mandatory: false, unique: false },
-        { name: "role", type: 'string', mandatory: false, unique: false },
-        { name: "pass", type: 'string', mandatory: false, unique: false },
+        { name: "name", type: 'string'},
+        { name: "role", type: 'string', options: ['admin', 'regular'] },
+        { name: "pass", type: 'string'},
       ],
     },
     fares: {
       allowExcessive: true,
       fields: [
-        { name: "code", type: 'increment', mandatory: false, unique: false },
-        { name: "from", type: 'stringArray', mandatory: false, unique: false },
-        { name: "to", type: 'stringArray', mandatory: false, unique: false },
-        { name: "biDir", type: 'boolean', mandatory: false, unique: false },
-        { name: "service", type: 'stringArray', mandatory: false, unique: false },
-        { name: "unit", type: 'stringArray', mandatory: false, unique: false },
-        { name: "profile", type: 'stringArray', mandatory: false, unique: false },
-        { name: "profileType", type: 'stringArray', mandatory: false, unique: false },
-        { name: "parentCode", type: 'stringArray', mandatory: false, unique: false },
-        { name: "tag", type: 'stringArray', mandatory: false, unique: false },
-        { name: "parentTag", type: 'stringArray', mandatory: false, unique: false },
-        { name: "weekDays", type: 'numberArray', mandatory: false, unique: false },
-        { name: "value", type: 'number',  mandatory: false, unique: false },
-        { name: "priority", type: 'number',  mandatory: false, unique: false },
-        { name: "dis1", type: 'number',  mandatory: false, unique: false },
-        { name: "dis2", type: 'number',  mandatory: false, unique: false },
-        { name: "seats", type: 'number',  mandatory: false, unique: false },
-        { name: "date1", type: 'date',  mandatory: false, unique: false },
-        { name: "date2", type: 'date',  mandatory: false, unique: false },
-        { name: "hour1", type: 'hour', mandatory: false, unique: false },
-        { name: "hour2", type: 'hour', mandatory: false, unique: false },
+        { name: "code", type: 'increment' },
+        { name: "from", type: 'stringArray' },
+        { name: "to", type: 'stringArray' },
+        { name: "biDir", type: 'boolean' },
+        { name: "service", type: 'stringArray' },
+        { name: "unit", type: 'stringArray' },
+        { name: "profile", type: 'stringArray' },
+        { name: "profileType", type: 'stringArray' },
+        { name: "parentCode", type: 'stringArray' },
+        { name: "tag", type: 'stringArray' },
+        { name: "parentTag", type: 'stringArray' },
+        { name: "weekDays", type: 'numberArray' },
+        { name: "value", type: 'number' },
+        { name: "priority", type: 'number' },
+        { name: "dis1", type: 'number' },
+        { name: "dis2", type: 'number' },
+        { name: "seats", type: 'number' },
+        { name: "date1", type: 'date' },
+        { name: "date2", type: 'date' },
+        { name: "hour1", type: 'hour' },
+        { name: "hour2", type: 'hour' },
       ]
     },
   }
@@ -61,7 +61,6 @@ async function validate(q) {
         let def; if ( schema[q.col]?.fields ) def = schema[q.col]?.fields.find( e => e.name == f )
         if ( !schema[q.col]?.allowExcessive && item[f] && !def ) return { error: 'excessive field ' + q.col + '.' + f }
         if ( def ) {
-
           if ( def.type == 'increment' && q.act == 'insert' && !item[f] ) item[f] = await func.getSeedInc(q.col)
 
           if ( def.type == 'string' && q.act == 'insert' && !item[f] ) item[f] += ''
@@ -97,6 +96,8 @@ async function validate(q) {
           if ( def.type == 'hour' && ( q.act == 'insert' || item[f] ) ) {
             if ( !item[f] || !func.isHour(item[f]) ) item[f] = ''
           }
+
+          if ( def.options && !def.options.includes(item[f]) ) return { error: 'invalid ' + f + ' value' }
 
         }
       }

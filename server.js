@@ -96,8 +96,8 @@ async function initServer() {
         let qq = q.queries,  results = []; if ( !qq ) { qq = [q] }; for (let t of qq) { t.ip = q.ip; t.origin = q.origin; t.user = q.user }
         for (let q of qq) {
           let r = {}
-          { let r = await permissions.checkPermissions(q); if (r) { reply( { error: r } ); return } }
           if (!q.data) q.data = []; if (typeof q.data == 'object' && !Array.isArray(q.data)) q.data = [q.data]
+          { let r = await permissions.checkPermissions(q); if (r) { reply( { error: r } ); return } }
           dbm.convertMongoIds(q.query)
 
           // actions
