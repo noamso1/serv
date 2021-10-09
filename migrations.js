@@ -15,7 +15,7 @@ async function doit() {
   if ( m < 1 ) {
     let t = await global.db.collection("users").findOne({});
     if (!t) {
-      let p = '1' //func.randomString(10)
+      let p = func.randomString(10)
       let salt = func.randomString(10)
       console.log('kiki first password ' + p)
       let u = {
