@@ -101,7 +101,7 @@ async function initServer() {
           dbm.convertMongoIds(q.query)
 
           // actions
-          if (q.act == 'passwordchange') r = await func.passwordChange(q);
+          if (q.act == 'passwordChange') r = await func.passwordChange(q);
           if (['find', 'insert', 'update', 'upsert', 'delete', 'push', 'pull'].includes(q.act)) r = await dbm.dbDo(q);
 
           results.push(r);

@@ -22,16 +22,19 @@ async function login(q) {
     }
   }
 
+  // validate token
   if (q.token) {
     let t = func.dec(q.token, global.tokenPass); if (!t) t = func.dec(q.token, global.tokenPassLast);
     if (t) q.user = JSON.parse(t);
   }
 
+  // refresh token
   if (q.act == 'refreshtoken') {
     if (!q.user || !q.user.email) return { error: "bad token" }
     q.act = 'login'; q.actWas = 'refreshtoken'; q.query = { "email": q.user.email, "passHash": q.user.pass }
   }
 
+  // login
   let now = Date.now()
   if (q.act == 'login' && q.query) {
     let fails = loginFails.filter(a => (a.ip == q.ip || a.email == q.query.email) && a.time > now - 60000)
@@ -49,6 +52,8 @@ async function login(q) {
     setPermissions(user)
     return { token, user, settings: await func.fetchSettings() }
   }
+
+  // check
   if (!q.user) return { error: 'invalid token' }
   let tokenAge = (now - q.user.issued) / 60000 // minutes
   if (tokenAge >= 5) return { error: 'token expired' }
@@ -66,7 +71,7 @@ function setPermissions(user) {
       ]
     }
   }
-  user.perm.push ( { "act": "passwordchange", "queryAdd": { "email": user.email } } )
+  user.perm.push ( { "act": "passwordChange", "queryAdd": { "email": user.email } } )
 }
 
 async function checkPermissions(q) {
