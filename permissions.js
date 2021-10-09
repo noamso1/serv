@@ -146,3 +146,4 @@ async function checkPermissions(q) {
 }
 
 module.exports = {login, setPermissions, checkPermissions}
+
