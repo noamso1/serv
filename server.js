@@ -93,7 +93,7 @@ async function initServer() {
         }
 
         // handle the query
-        let qq = q.queries,  results = [], multiple = false; if ( qq ) { multiple = true } else { qq = [q] }; for (let t of qq) { t.ip = q.ip; t.origin = q.origin; t.user = q.user }
+        let qq = q.queries,  results = []; if ( !qq ) { qq = [q] }; for (let t of qq) { t.ip = q.ip; t.origin = q.origin; t.user = q.user }
         for (let q of qq) {
           let r = {}
           { let r = await permissions.checkPermissions(q); if (r) { reply( { error: r } ); return } }
@@ -108,7 +108,7 @@ async function initServer() {
         }
 
         // response
-        if ( multiple ) { reply( { results } ) } else { reply( results[0] ) }
+        if ( q.queries) { reply( { results } ) } else { reply( results[0] ) }
         return
       });
     }
