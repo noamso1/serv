@@ -2,6 +2,21 @@
 "use strict";
 const func = require('./func.js');
 
+function setPermissions(user) {
+  if (!user.perm) {
+    user.perm = []
+    if (user.role == 'admin') {
+      user.perm = [
+        { "col": "users", "act": "find", "project": { pass: 0, passSalt: 0 } },
+        { "col": "users", "act": "insert" },
+        { "col": "users", "act": "update" },
+        { "col": "users", "act": "delete" },
+      ]
+    }
+  }
+  user.perm.push ( { "act": "passwordChange", "queryAdd": { "email": user.email } } )
+}
+
 let loginFails = []
 async function login(q) {
 
@@ -57,21 +72,6 @@ async function login(q) {
   if (!q.user) return { error: 'invalid token' }
   let tokenAge = (now - q.user.issued) / 60000 // minutes
   if (tokenAge >= 5) return { error: 'token expired' }
-}
-
-function setPermissions(user) {
-  if (!user.perm) {
-    user.perm = []
-    if (user.role == 'admin') {
-      user.perm = [
-        { "col": "users", "act": "find", "project": { pass: 0, passSalt: 0 } },
-        { "col": "users", "act": "insert" },
-        { "col": "users", "act": "update" },
-        { "col": "users", "act": "delete" },
-      ]
-    }
-  }
-  user.perm.push ( { "act": "passwordChange", "queryAdd": { "email": user.email } } )
 }
 
 async function checkPermissions(q) {
