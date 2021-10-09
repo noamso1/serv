@@ -24,7 +24,6 @@ for (let i = 2; i < 999; i++) {
 }
 
 // initial values
-let loginFails = []
 global.port = arg.port; if (!global.port) global.port = env.port 
 global.dbName = arg.db; if (!global.dbName) global.dbName = env.dbName
 global.dbConn = arg.conn; if (!global.dbConn) global.dbConn = env.dbConn
@@ -35,7 +34,6 @@ initServer()
 async function initServer() {
   if (!global.db) await dbm.dbConnect(global.dbConn, global.dbName);
   let httpServer = http.createServer(async function (req, res) {
-    console.log('.');
 
     // ----------------- static file server - front end
     if (req.method == 'GET') {
@@ -72,79 +70,34 @@ async function initServer() {
       let q = {}, buf = '';
       req.on('data', function (data) { buf += data; });
       req.on('end', async function () {
+
         // log 
         { let a = buf; a = a.replace(/\n/g, ''); a = func.replaceFromTo(a, 0 , '"token"', '",', ':"...'); a = func.replaceFromTo(a, 0 , '"token"', '"}', ':"...'); console.log('=== ' + a.substring(0,100) ); }
+
         // filter out script injection
         buf = buf.replace(/</g, '[').replace(/>/g, ']').replace(/javascript/ig, 'java script').replace(/\$where/ig, 'where')
+
         // parse the json input
         try { q = JSON.parse(buf); } catch (error) { reply( { error: "invalid json" } ); return }
-
         delete q.user
 
         // actions without token
         if (q.act == 'publicEndPoint') { reply( { ok: 1 } ); return; }
 
-        // login / jwt
+        // authenticate
         {
-          // tokenPass
-          if ( !global.tokenPass ) {
-            let t
-            t = await db.collection('system').findOne( { _id: 'tokenPass' } )
-            global.tokenPass = t?.value
-            t = await db.collection('system').findOne( { _id: 'tokenPassLast' } )
-            global.tokenPassLast = t?.value
-            if ( !global.tokenPass ) { global.tokenPass = func.randomString(50); tokenPassChange(); }
-            setInterval(tokenPassChange, 30 * 60000)
-            function tokenPassChange() {
-              global.tokenPassLast = global.tokenPass
-              global.tokenPass = func.randomString(50)
-              db.collection('system').updateOne( { _id: 'tokenPass' }, { $set: { value: global.tokenPass } }, { upsert: true } )
-              db.collection('system').updateOne( { _id: 'tokenPassLast' }, { $set: { value: global.tokenPassLast } }, { upsert: true } )
-            }
-          }
-          if (q.token) {
-            let t = func.dec(q.token, global.tokenPass); if (!t) t = func.dec(q.token, global.tokenPassLast);
-            if (t) q.user = JSON.parse(t);
-          }
-          if (q.act == 'refreshtoken') {
-            if (!q.user || !q.user.email) { reply( { error: "bad token" } ); return }
-            q.act = 'login'; q.actWas = 'refreshtoken'; q.query = { "email": q.user.email, "passHash": q.user.pass }
-          }
-          if (q.act == 'login' && q.query) {
-            let ip = clientIP(), now = Date.now()
-            let fails = loginFails.filter(a => (a.ip == ip || a.email == q.query.email) && a.time > now - 60000)
-            if (fails.length >= 4) { reply( { error: 'too many login tries, please wait a few seconds.'} ); return; }
-            let r = await global.db.collection("users").findOne({ email: q.query.email.toLowerCase() });
-            if (r) { if (!func.validateHash(q.query.pass + r.passSalt, r.pass) && q.query.passHash != r.pass ) r = undefined; }
-            if (!r) {
-              loginFails = loginFails.filter(a => a.time > now - 60000)
-              loginFails.push({ "ip": ip, "email": q.query.email, "time": now });
-              reply( { error: 'permission denied' } ); return;
-            }
-            r.issued = Date.now(); if (global.dbName == 'serv') r.issued = 9999999999999 // for local debug
-            let token = func.enc(JSON.stringify(r), global.tokenPass)
-            delete r.pass;
-            permissions.setPermissions(r)
-            reply( { token, user: r, settings: await func.fetchSettings() } ); return;
-          }
-          if (!q.user) { reply( { error: 'invalid token' } ); return; }
-          let tokenAge = (Date.now() - q.user.issued) / 60000 // minutes
-          if (tokenAge >= 5) { reply( { error: 'token expired' } ); return; }
+          q.origin = req.headers.origin
+          q.ip = req.headers['x-forwarded-for'] + ''; if ( q.ip == '' ) q.ip = req.connection.remoteAddress; if (q.ip.indexOf(':') >= 0) q.ip = q.ip.substring(q.ip.lastIndexOf(':')+1, q.ip.length)
+          // To pass the IP address, edit /etc/nginx/nginx.conf, under http {} section add this line: proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          let r = await permissions.login(q); if (r) { reply(r); return }
         }
 
         // handle the query
-        let multiple = false, results = []; if ( q.queries ) { multiple = true } else { q.queries = [q] }
-        for (q of q.queries) {
+        let qq = q.queries,  results = [], multiple = false; if ( qq ) { multiple = true } else { qq = [q] }; for (let t of qq) { t.ip = q.ip; t.origin = q.origin; t.user = q.user }
+        for (let q of qq) {
           let r = {}
+          { let r = await permissions.checkPermissions(q); if (r) { reply( { error: r } ); return } }
           if (!q.data) q.data = []; if (typeof q.data == 'object' && !Array.isArray(q.data)) q.data = [q.data]
-          q.origin = req.headers.origin
-
-          // permissions
-          if(q.user) {
-            let t = await permissions.checkPermissions(q);
-            if (t) { reply( { error: t } ); return; }
-          }
-
           dbm.convertMongoIds(q.query)
 
           // actions
@@ -172,15 +125,6 @@ async function initServer() {
       res.end(JSON.stringify(r))
       if ( arg.logAll ) func.addLog('../log.txt', new Date().toISOString() + ' ' + req.connection.remoteAddress + ' RES\n' + JSON.stringify(r) + '\n')
       return
-    }
-
-    function clientIP() {
-      let r = req.headers['x-forwarded-for'] + ''; if ( r == '' ) r = req.connection.remoteAddress
-      if (r.indexOf(':') >= 0) r = r.substring(r.lastIndexOf(':')+1, r.length)
-      return r
-      // To pass the IP address, edit /etc/nginx/nginx.conf, under http {} section add this line:
-      // proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-      // And then you'll have in nodejs req.headers['x-forwarded-for']
     }
 
   }).listen(global.port);
