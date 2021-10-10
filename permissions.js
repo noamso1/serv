@@ -31,6 +31,7 @@ async function checkPermissions(q) {
   // read / write only my unit - supoort hirarchy parent/child unit
   // if (q.user.unit && q.query) q.query.unit = q.user.unit;
   // if (q.user.unit && q.data) for (let d of q.data) { d.unit = q.user.unit }
+  // TODO allow unit admin to control his units..
   if ( q.user?.unit ) {
     if ( !q.query ) q.query = {}; if ( !q.query.$and ) q.query.$and = []
     q.query.$and.push( { $or: [ { unit: q.user.unit }, { unit: { $regex: '^' + q.user.unit + '/' } } ] } )
