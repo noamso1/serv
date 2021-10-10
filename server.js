@@ -2,31 +2,33 @@
 "use strict";
 process.on('uncaughtException', function (err) { console.error(err); });
 process.on('unhandledRejection', function (err) { console.log('unhandledRejection Error: ' + err.stack); });
-const http = require('http');
-const fs = require('fs');
-const func = require('./func.js');
-const permissions = require('./permissions.js');
-const dbm = require('./db.js');
-const sched = require('./sched.js');
-const ws = require('./ws.js');
-const env = require('./env.json');
+
+global.env = require('./env.json')
+const http = require('http')
+const fs = require('fs')
+const func = require('./func.js')
+const permissions = require('./permissions.js')
+const dbm = require('./db.js')
+//const sched = require('./sched.js')
+//const ws = require('./ws.js')
+//const email = require('./email.js')
 
 // load the arguments: node main.js db=serv port=9999 ----> arg = {"db": "serv", "port": "9999"}
-let arg = {};
+global.arg = {};
 for (let i = 2; i < 999; i++) {
   let a = process.argv[i];
   if (a === undefined) break;
   if (a.indexOf('=') >= 0) {
     let k = a.substring(0, a.indexOf('='));
     let v = a.substring(a.indexOf('=') + 1, a.length);
-    arg[k] = v;
+    global.arg[k] = v;
   }
 }
 
 // initial values
-global.port = arg.port; if (!global.port) global.port = env.port 
-global.dbName = arg.db; if (!global.dbName) global.dbName = env.dbName
-global.dbConn = arg.conn; if (!global.dbConn) global.dbConn = env.dbConn
+global.port = global.arg.port; if (!global.port) global.port = env.port 
+global.dbName = global.arg.db; if (!global.dbName) global.dbName = env.dbName
+global.dbConn = global.arg.conn; if (!global.dbConn) global.dbConn = env.dbConn
 
 // start the server
 initServer()
@@ -123,14 +125,14 @@ async function initServer() {
         "Connection": "close"
       });
       res.end(JSON.stringify(r))
-      if ( arg.logAll ) func.addLog('../log.txt', new Date().toISOString() + ' ' + req.connection.remoteAddress + ' RES\n' + JSON.stringify(r) + '\n')
+      if ( global.arg.logAll ) func.addLog('../log.txt', new Date().toISOString() + ' ' + req.connection.remoteAddress + ' RES\n' + JSON.stringify(r) + '\n')
       return
     }
 
   }).listen(global.port);
   console.log('listening on port ' + global.port + ' db ' + global.dbName )
 
-  ws.init(httpServer);
+  //ws.init(httpServer);
 }
 
 

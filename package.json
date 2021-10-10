@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@sendgrid/mail": "^7.4.7",
     "mongodb": "^4.1.1",
     "ws": "^8.2.2"
   }
