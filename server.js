@@ -42,19 +42,11 @@ async function initServer() {
       //cut the first slash and the query
       let body, ext = '', head, u = req.url.slice(1);
       if (u.indexOf('?') >= 0) u = u.substring(0, u.indexOf('?'));
-      if (u.indexOf('.') >= 0) ext = u.slice(u.lastIndexOf('.') + 1, u.length); //find the extension
       if (u.indexOf('..') >= 0) { res.end(); return; }
-
-      //default document
-      if ( u == 'admin/' || u === 'admin' || u == '' ) { res.writeHead(302, { 'Location': '/admin/index.html' }); res.end(); return; }
-
-      //allow only these locations
-      if ( !u.startsWith('admin/') ) { res.end('access denied'); return; }
-
-      //check if exists
+      if ( u == '' ) u = 'index.html' //default doc
+      u = 'public/' + u //root dir
       if (!fs.existsSync(u) || fs.lstatSync(u).isDirectory()) { res.end('Not Found'); return; }
-
-      //serve the file with header
+      if (u.indexOf('.') >= 0) ext = u.slice(u.lastIndexOf('.') + 1, u.length); //find the extension
       if (ext == 'js') head = { 'Content-Type': 'text/javascript', "Cache-Control": "max-age=86400" };
       if (ext == 'css') head = { 'Content-Type': 'text/css', "Cache-Control": "max-age=86400" };
       if (ext == 'ico') head = { 'Content-Type': 'image/x-icon', "Cache-Control": "max-age=86400" };
