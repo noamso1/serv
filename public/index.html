@@ -2,13 +2,14 @@
   body {font-family:arial; font-size:14; background:#bbb; padding:0px; }
   input[type="button"] { font-size:14; padding:5px; border:0px solid #ccc; margin:3; background:#888;}
   input[type="text"] {font-family:arial; font-size:14; padding:5px; border:0px solid #ccc; width:80;}
-  .divmain {padding:5; font-size:14; background:#300; color:#fff; overflow: scroll; width:90%; height:200; white-space:pre; }
+  .divmain {padding:5; font-size:14; background:#300; color:#fff; overflow: scroll; width:99%; height:200; white-space:pre; }
   .key { color: #ff0; }
   .string { color: #8f8; }
   .number { color: #f8f; }
   .boolean { color: #aaf; }
   .null { color: #faa; }
-</style> </head> <body>
+</style> </head>
+<body>
   <input type=text id=tok style='height:20; width:200; margin-bottom:5; background:#ddd;'> &nbsp;&nbsp;
   <span id=divlinks></span>
   <textarea id=q name=q class=divmain></textarea><br>
@@ -18,7 +19,7 @@
 
 <script>
   tok.value = window.localStorage.getItem("token"); if ( !tok.value ) tok.value = 'Token'
-  //if (location.hostname == 'localhost') tok.value = 'DBdeTwkOOhtUVghmWVZEEhZGDw4LdjJwYCBqREoNRQ9DBhA4QxZLUg5UVVFTDwVQWwMPXQlUTx1FFFVSMgpRSCIuR1xLOkoaUgBmARpNVRxGXyNKNDcoDm98XkpUOBkAUA==' //moovex 9999 infinite
+  //if (location.hostname == 'localhost') tok.value = 'sldkfdlfkjl'
 
   async function show() {
     let r = '', a = '', t = '';
