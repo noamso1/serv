@@ -39,24 +39,24 @@ async function initServer() {
 
     // ----------------- static file server - front end
     if (req.method == 'GET') {
-      //cut the first slash and the query
-      let body, ext = '', head, u = req.url.slice(1);
-      if (u.indexOf('?') >= 0) u = u.substring(0, u.indexOf('?'));
-      if (u.indexOf('..') >= 0) { res.end(); return; }
-      if ( u == '' ) u = 'index.html' //default doc
-      u = 'public/' + u //root dir
-      if (!fs.existsSync(u) || fs.lstatSync(u).isDirectory()) { res.end('Not Found'); return; }
-      if (u.indexOf('.') >= 0) ext = u.slice(u.lastIndexOf('.') + 1, u.length); //find the extension
-      if (ext == 'js') head = { 'Content-Type': 'text/javascript', "Cache-Control": "max-age=86400" };
-      if (ext == 'css') head = { 'Content-Type': 'text/css', "Cache-Control": "max-age=86400" };
-      if (ext == 'ico') head = { 'Content-Type': 'image/x-icon', "Cache-Control": "max-age=86400" };
-      if (ext == 'png') head = { 'Content-Type': 'image/png', "Cache-Control": "max-age=86400" };
-      if (ext == 'jpg') head = { 'Content-Type': 'image/jpeg', "Cache-Control": "max-age=86400" };
-      if (ext == 'svg') head = { 'Content-Type': 'image/svg+xml', "Cache-Control": "max-age=86400" };
-      if (ext == 'htm') head = { 'Content-Type': 'text/html', "Cache-Control": "max-age=86400" };
-      if (ext == 'html') head = { 'Content-Type': 'text/html', "Cache-Control": "max-age=86400" };
-      if (ext == 'zip') head = { 'Content-Type': 'application/zip', "Cache-Control": "max-age=86400" };
-      if (head) { res.writeHead(200, head); res.end(fs.readFileSync(u)); return; } else { res.end('Not Found'); return; }
+      let ext, head, t, u = req.url.slice(1)
+      if ( u.indexOf('..') >= 0 ) { res.end(); return }
+      if ( u.indexOf('?') >= 0 ) u = u.substring(0, u.indexOf('?'))
+      if ( u == '' ) u = 'index.html'
+      u = 'public/' + u
+      if ( !fs.existsSync(u) || fs.lstatSync(u).isDirectory() ) { res.end('Not Found'); return }
+      if ( u.indexOf('.') >= 0) ext = u.slice(u.lastIndexOf('.') + 1, u.length)
+      if ( ext == 'js' ) t = 'text/javascript'
+      if ( ext == 'css' ) t = 'text/css'
+      if ( ext == 'ico' ) t = 'image/x-icon'
+      if ( ext == 'png' ) t = 'image/png'
+      if ( ext == 'jpg' ) t = 'image/jpeg'
+      if ( ext == 'svg' ) t = 'image/svg+xml'
+      if ( ext == 'zip' ) t = 'application/zip'
+      if ( ext == 'htm' ) t = 'text/html'
+      if ( ext == 'html' ) t = 'text/html'
+      if ( !t ) { res.end('Not Found'); return }
+      res.writeHead(200, { 'Content-Type': t, "Cache-Control": "max-age=86400" } ); res.end(fs.readFileSync(u)); return
     }
 
     // ----------------------------- API
