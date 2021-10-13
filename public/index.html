@@ -1,55 +1,35 @@
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-  <link rel="icon" href="/favicon.png">
-  <style>
-    body {font-family:arial; font-size:14; background:#ccc; padding:0px;}
-  input[type="button"] {font-family:arial; font-size:14; padding:5px; border:1px solid #ccc; margin:3; background:#ccf;}
-  input[type="text"] {font-family:arial; font-size:14; padding:5px; border:1px solid #ccc; width:80;}
-  textarea {font-family:monospace; font-size:14; background:#300; color:#fff; padding:5px; border:1px solid #ddd; white-space:pre;}
-  .divmain {padding:5; font-size:14; background:#300; color:#fff; overflow: scroll; width:90%; height:200; }
-  .json {margin-bottom:20; font-size:14; padding:5; overflow:auto;
-         color:#fff; background:#f55; display:inline-block; font-family:courier new; white-space:pre;}
+<html> <head> <meta http-equiv="Content-Type" content="text/html;charset=utf-8"> <style>
+  body {font-family:arial; font-size:14; background:#bbb; padding:0px; }
+  input[type="button"] { font-size:14; padding:5px; border:0px solid #ccc; margin:3; background:#888;}
+  input[type="text"] {font-family:arial; font-size:14; padding:5px; border:0px solid #ccc; width:80;}
+  .divmain {padding:5; font-size:14; background:#300; color:#fff; overflow: scroll; width:90%; height:200; white-space:pre; }
   .key { color: #ff0; }
   .string { color: #8f8; }
   .number { color: #f8f; }
   .boolean { color: #aaf; }
   .null { color: #faa; }
-  </style>
-</head>
-
-<body>
-  <div id=divlinks></div>
-  <div style='padding:10;'>TOKEN <input type=text id=tok style='width:500;'></div>
+</style> </head> <body>
+  <input type=text id=tok style='height:20; width:200; margin-bottom:5; background:#ddd;'> &nbsp;&nbsp;
+  <span id=divlinks></span>
   <textarea id=q name=q class=divmain></textarea><br>
   <input type=button style="background:#aaf;" value="   >>   " onclick="show();">
   <div id=divmain class=divmain></div>
 </body>
 
 <script>
-  tok.value = window.localStorage.getItem("token");
+  tok.value = window.localStorage.getItem("token"); if ( !tok.value ) tok.value = 'Token'
   //if (location.hostname == 'localhost') tok.value = 'DBdeTwkOOhtUVghmWVZEEhZGDw4LdjJwYCBqREoNRQ9DBhA4QxZLUg5UVVFTDwVQWwMPXQlUTx1FFFVSMgpRSCIuR1xLOkoaUgBmARpNVRxGXyNKNDcoDm98XkpUOBkAUA==' //moovex 9999 infinite
 
   async function show() {
-    let r = '',
-      a = '',
-      t = '';
+    let r = '', a = '', t = '';
     let qj = JSON.parse(q.value);
-    rclear();
+    divmain.innerHTML = '';
     a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: q.value });
     r = await a.json();
     if (r.token) tok.value = r.token;
     t = JSON.stringify(r, null, 4);
     t = jsonColor(t);
-    rr('<pre>' + t + '</pre>');
-  }
-
-  function rclear() {
-    divmain.innerHTML = '';
-  }
-
-  function rr(t) {
-    divmain.innerHTML += t;
+    divmain.innerHTML += '<pre>' + t + '</pre>';
     divmain.style.height = 40 + countString(t, '\n') * 18 
   }
 
@@ -80,6 +60,11 @@
     });
   }
 
+  function loadQuery(k) {
+    let t = { ...qq[k] }
+    if (t.token == '!') t.token = tok.value
+    q.value = JSON.stringify(t, null, 4);
+  }
 
   let qq = {
     "Login": { "act": "login", "query": { "email": "kiki@kiki.com", "pass": "1" } },
@@ -127,22 +112,8 @@
     "passwordChange":{ "token": "!","act":"passwordChange", "email": "kiki@kiki.com", "oldPass": "123", "newPass": "456" },
   };
 
-  let r = "",
-    c = 0,
-    ddd = '<div style="display:inline-block; padding:10; vertical-align:top;">'
-  r += ddd;
   for (let k in qq) {
-    r += '<a href=# value=\'' + k + '\' style="color:#000; line-height:1.5;" onclick=\'loadQuery("' + k + '")\'>' + k + '</a><br>';
-    c++;
-    if ((c / 7).toFixed() == c / 7) r += '</div>' + ddd;
+    divlinks.innerHTML += '<a href=# value=\'' + k + '\' style="color:#000; line-height:1.5;" onclick=\'loadQuery("' + k + '")\'>' + k + '</a> &nbsp;&nbsp;&nbsp;';
   }
-  r += '</div><br>';
-  divlinks.innerHTML = r;
 
-  function loadQuery(k) {
-    let t = { ...qq[k] }
-    if (t.token == '!') t.token = tok.value
-    q.value = JSON.stringify(t, null, 4);
-
-  }
 </script>
