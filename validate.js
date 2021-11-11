@@ -5,6 +5,7 @@ const func = require('./func.js');
 async function validate(q) {
 
   let schema = {
+
     users: {
       allowExcessive: true,
       fields: [
@@ -14,6 +15,7 @@ async function validate(q) {
         { name: "pass", type: 'string'},
       ],
     },
+
     fares: {
       allowExcessive: true,
       fields: [
