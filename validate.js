@@ -4,6 +4,7 @@ const func = require('./func.js');
 
 async function validate(q) {
 
+  // -------------schema------------------------------
   let schema = {
 
     users: {
@@ -44,6 +45,7 @@ async function validate(q) {
     },
   }
 
+  // -------------------apply schema---------------
   if ( [ 'insert', 'update' ].includes(q.act) ) {
 
     for ( let item of q.data ) { 
