@@ -11,7 +11,7 @@ async function validate(q) {
       fields: [
         { name: "email", type: 'string', mandatory: true, unique: true },
         { name: "name", type: 'string'},
-        { name: "role", type: 'string', options: ['admin', 'regular'] },
+        { name: "role", type: 'string', default: 'regular', options: ['admin', 'regular'] },
         { name: "pass", type: 'string'},
       ],
     },
@@ -51,6 +51,7 @@ async function validate(q) {
       for ( let def of schema[q.col].fields ) {
         let f = def.name
         if ( q.act == 'insert' && def.mandatory && !item[f] ) return { error: 'must insert ' + q.col + '.' + f };
+        if ( q.act == 'insert' && !item[f] ) item[f] = def.default 
         if ( q.act == 'insert' && !item[f] ) item[f] = '' 
         if ( ( q.act == 'insert' || q.act == 'update' ) && def.unique && item[f] ) {
           let search = {}; search[f] = item[f]; if (q.act == 'update') search.$nor = [ q.query ]
