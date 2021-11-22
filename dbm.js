@@ -12,6 +12,11 @@ async function dbConnect(dbConn, dbName) {
 
 async function dbDo(q) {
   let r = {};
+
+  //if (q.act == 'update' && !q.before) {
+  //  q.before = await global.db.collection(q.col).find(q.query).toArray() // for history / validate etc.. - fetch current documents before update
+  //}
+
   let vres = await validate(q); if (vres.error) return vres;
 
   if (q.act == 'find' && q.count) {
