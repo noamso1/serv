@@ -88,10 +88,7 @@ async function checkPermissions(q) {
 
 }
 
-let loginFails = []
-async function login(q) {
-
-  // tokenPass
+async function initTokenPass() {
   if ( !global.tokenPass ) {
     let t
     t = await global.db.collection('system').findOne( { _id: 'tokenPass' } )
@@ -107,7 +104,10 @@ async function login(q) {
       global.db.collection('system').updateOne( { _id: 'tokenPassLast' }, { $set: { value: global.tokenPassLast } }, { upsert: true } )
     }
   }
+}
 
+let loginFails = []
+async function login(q) {
   // validate token
   if (q.token) {
     let t = func.dec(q.token, global.tokenPass); if (!t) t = func.dec(q.token, global.tokenPassLast);
@@ -145,5 +145,5 @@ async function login(q) {
   if (tokenAge >= 5) return { error: 'token expired' }
 }
 
-module.exports = { login, setPermissions, checkPermissions, }
+module.exports = { login, setPermissions, checkPermissions, initTokenPass }
 

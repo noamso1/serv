@@ -2,7 +2,7 @@
 
   doit()
   async function doit() {
-    let q = {act: "userregisterconfirm", email: getfield("email"), unlockKey: getfield("unlockKey")}
+    let q = {act: "registerConfirm", email: getfield("email"), unlockKey: getfield("unlockKey")}
     console.log(q)
     let a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: JSON.stringify(q) });
     a = await a.json();

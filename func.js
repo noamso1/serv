@@ -308,7 +308,7 @@ function passStrength(pass) {
 }
 
 //------register
-async function userRegister(q) {
+async function register(q) {
   if ( !q.email ) return {"error": "must specify email"}
   if ( !q.pass ) return {"error": "must specify pass"}
   let strength = passStrength(q.pass); if (strength) return {ok:0, error: strength}
@@ -332,13 +332,13 @@ async function userRegister(q) {
   let r = await global.db.collection('users').insertOne(u)
   if( !r.insertedId ) return { ok: 0, "error": "cannot create user" }
 
-  let link = q.origin + '/public/regconfirm.html?email=' + q.email + '&unlockKey=' + unlockKey
+  let link = q.origin + '/public/confirmemail.html?email=' + q.email + '&unlockKey=' + unlockKey
   email.send( {from: global.env.siteEmail, to: q.email, subject: "Confirm your email", html: link} )
 
   return {ok: 1, "message": "a confirmation link has been sent to " + q.email }
 }
 
-async function userRegisterConfirm(q) {
+async function registerConfirm(q) {
   if ( !q.email ) return {"error": "must specify email"}
   let uu = await global.db.collection('users').find({"email": q.email, "unlockKey": q.unlockKey, "status": "unconfirmed"}).toArray()
   if (uu.length == 0) return {"error": "cannot find user, or wrong unlock key, or user already active."}
@@ -353,7 +353,7 @@ async function userRegisterConfirm(q) {
 
 //----------reset pass
 async function sendResetToken(q) {
-  let resetToken = { email: q.email, issued: Date.now() }; resetToken = encr(JSON.stringify(resetToken), global.tokenPass)
+  let resetToken = { email: q.email, issued: Date.now() }; resetToken = enc(JSON.stringify(resetToken), global.tokenPass)
   let url = q.origin + '/public/resetpass.html?email=' + q.email + '&resetToken=' + encodeURIComponent(resetToken) //resetToken.replace(/\+/g, '%2b')
   email.send( {from: global.env.siteEmail , to: q.email, subject: "Password Reset", html: url} )
   return {ok:1}
@@ -361,7 +361,7 @@ async function sendResetToken(q) {
 
 async function useResetToken(q) { //email,resetToken,newPass
   if( !q.email ) return {ok: 0, error: "please specify email"}
-  let tok = decr(q.resetToken, global.tokenPass); if (!tok) tok = decr(q.resetToken, global.tokenPassLast);
+  let tok = dec(q.resetToken, global.tokenPass); if (!tok) tok = dec(q.resetToken, global.tokenPassLast);
   if (tok) tok = JSON.parse(tok)
   if( !tok || !tok.email || !tok.issued || tok.email != q.email ) return {ok: 0, error: "invalid reset token"}
   if( !q.newPass ) return {ok: 0, error: "please choose a new password"}
@@ -376,6 +376,6 @@ async function useResetToken(q) { //email,resetToken,newPass
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
-  createHash, validateHash, changePassword, passStrength, userRegister, userRegisterConfirm, sendResetToken, useResetToken,
+  createHash, validateHash, changePassword, passStrength, register, registerConfirm, sendResetToken, useResetToken,
 }
 

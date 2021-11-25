@@ -74,12 +74,13 @@ async function initServer() {
         // parse the json input
         try { q = JSON.parse(buf); } catch (error) { reply( { error: "invalid json" } ); return }
         delete q.user
+        await perm.initTokenPass()
 
         // actions without token
         {
           let r
-          if (q.act == 'userRegister') r = await func.userRegister(q)
-          if (q.act == 'userRegisterConfirm') r = await func.userRegisterConfirm(q)
+          if (q.act == 'register') r = await func.register(q)
+          if (q.act == 'registerConfirm') r = await func.registerConfirm(q)
           if (q.act == 'sendResetToken') r = await func.sendResetToken(q)
           if (q.act == 'useResetToken') r = await func.useResetToken(q)
           if ( r ) { reply(r); return; }
