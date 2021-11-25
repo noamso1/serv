@@ -332,7 +332,7 @@ async function register(q) {
   let r = await global.db.collection('users').insertOne(u)
   if( !r.insertedId ) return { ok: 0, "error": "cannot create user" }
 
-  let link = q.origin + '/public/confirmemail.html?email=' + q.email + '&unlockKey=' + unlockKey
+  let link = q.origin + '/confirmemail.html?email=' + q.email + '&unlockKey=' + unlockKey
   email.send( {from: global.env.siteEmail, to: q.email, subject: "Confirm your email", html: link} )
 
   return {ok: 1, "message": "a confirmation link has been sent to " + q.email }
@@ -354,7 +354,7 @@ async function registerConfirm(q) {
 //----------reset pass
 async function sendResetToken(q) {
   let resetToken = { email: q.email, issued: Date.now() }; resetToken = enc(JSON.stringify(resetToken), global.tokenPass)
-  let url = q.origin + '/public/resetpass.html?email=' + q.email + '&resetToken=' + encodeURIComponent(resetToken) //resetToken.replace(/\+/g, '%2b')
+  let url = q.origin + '/resetpass.html?email=' + q.email + '&resetToken=' + encodeURIComponent(resetToken) //resetToken.replace(/\+/g, '%2b')
   email.send( {from: global.env.siteEmail , to: q.email, subject: "Password Reset", html: url} )
   return {ok:1}
 }

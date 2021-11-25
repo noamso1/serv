@@ -5,9 +5,7 @@ New Pass <input type=text id=newPass> <input type=button value='Submit' onclick=
 <script>
 
   async function doit() {
-    let q = {act: "passworduseresettoken", email: getfield("email"), resetToken: getfield("resetToken"), newPass: newPass.value}
-    console.log(q)
-    console.log(location.host)
+    let q = {act: "useResetToken", email: getfield("email"), resetToken: getfield("resetToken"), newPass: newPass.value}
     let a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: JSON.stringify(q) });
     a = await a.json();
     document.write(JSON.stringify(a))
