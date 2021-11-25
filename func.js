@@ -4,6 +4,7 @@ const http = require('http');
 const https = require('https');
 const crypto = require('crypto')
 const fs = require('fs')
+const email = require('./email.js')
 
 //-----------------------------------------
 function showDate(d) {
@@ -283,6 +284,49 @@ function validateHash(p, h) {
   return false
 }
 
+//------register
+async function userRegister(q) {
+  if ( !q.email ) return {"error": "must specify email"}
+  if ( !q.pass ) return {"error": "must specify pass"}
+  await global.db.collection('users').deleteMany( { email: q.email, status: 'unconfirmed' } )
+  let uu = await global.db.collection('users').find({"email": q.email}).toArray()
+  if (uu.length >= 1) return {"error": "email already exists"}
+  let passSalt = randomString(10)
+  let unlockKey = randomString(10, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+  let u = {
+   "email": q.email,
+   "name": q.name,
+   "phone": q.phone,
+   "role": "passenger",
+   "status": "unconfirmed",
+   "unlockKey": unlockKey,
+   "pass": createHash(q.pass + passSalt),
+   "passSalt": passSalt,
+   "registered": Date.now(),
+  }
+
+  let r = await global.db.collection('users').insertOne(u)
+  if( !r.insertedId ) return { ok: 0, "error": "cannot create user" }
+
+  let link = q.origin + '/public/regconfirm.html?email=' + q.email + '&unlockKey=' + unlockKey
+  email.send( {from: "info@noamso.one", to: q.email, subject: "Confirm your email", html: link} )
+
+  return {ok: 1, "message": "a confirmation link has been sent to " + q.email }
+}
+
+async function userRegisterConfirm(q) {
+  if ( !q.email ) return {"error": "must specify email"}
+  let uu = await global.db.collection('users').find({"email": q.email, "unlockKey": q.unlockKey, "status": "unconfirmed"}).toArray()
+  if (uu.length == 0) return {"error": "cannot find user, or wrong unlock key, or user already active."}
+  let u = {
+   "$set": { "status": "active" },
+   "$unset": { "unlockKey": 1 },
+  }
+  let r = await global.db.collection("users").updateOne( { "email": q.email }, u )
+  if( r.modifiedCount != 1 ) return { ok: 0, error: "cannot confirm email" }
+  return { ok: 1 }
+}
+
 //------pass
 async function passwordChange(q, user) {
   if (!q.email) return {ok: 0, error: "must specify email"}
@@ -311,5 +355,5 @@ function passStrength(pass) {
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
-  createHash, validateHash, passwordChange, passStrength
+  createHash, validateHash, passwordChange, passStrength, userRegister, userRegisterConfirm,
 }

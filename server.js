@@ -11,7 +11,7 @@ const permissions = require('./permissions.js')
 const dbm = require('./dbm.js')
 //const sched = require('./sched.js')
 //const ws = require('./ws.js')
-//const email = require('./email.js')
+const email = require('./email.js')
 
 // load the arguments: node main.js db=serv port=9999 ----> arg = {"db": "serv", "port": "9999"}
 global.arg = {};
@@ -76,7 +76,8 @@ async function initServer() {
         delete q.user
 
         // actions without token
-        if (q.act == 'publicEndPoint') { reply( { ok: 1 } ); return; }
+        if (q.act == 'userregister') { reply( await func.userRegister(q) ); return; }
+        if (q.act == 'userregisterconfirm') { reply( await func.userRegisterConfirm(q) ); return; }
 
         // authenticate
         {
