@@ -136,7 +136,7 @@ async function login(q) {
     let token = func.enc(JSON.stringify(user), global.tokenPass)
     delete user.pass;
     setPermissions(user)
-    return { token, user, settings: await func.fetchSettings() }
+    return { token, user  } // settings: await func.fetchSettings()
   }
 
   // check
