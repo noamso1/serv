@@ -3,6 +3,8 @@
   "dbConn": "mongodb://localhost:27017",
   "dbName": "serv",
   "dictPort": 2222,
-  "dictPass": "ppp"
+  "dictPass": "ppp",
+  "sgKey": "SendGrid_API_Key...",
+  "siteEmail": "info@noamso.one"
 }
 

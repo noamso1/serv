@@ -112,8 +112,11 @@
               "notes": {"time": "123"}
           }
       },
-    "passwordChange":{ "token": "!","act":"passwordChange", "email": "kiki@kiki.com", "oldPass": "123", "newPass": "456" },
-  };
+    "register":{ "act":"userRegister", "email": "kiki@kiki.com", "pass": "123" },
+    "changePassword":{ "token": "!","act":"changePassword", "email": "kiki@kiki.com", "oldPass": "123", "newPass": "456" },
+    "sendResetToken": { "act": "sendResetToken", "email": "kiki@kiki.com", "mode": "admin", "customer" : "Moovex", "app": "Driver App" },
+    "useResetToken": { "act": "useResetToken", "email": "kiki@kiki.com", "resetToken": "...", "newPass": "123" },
+  }
 
   for (let k in qq) {
     divlinks.innerHTML += '<a href=# value=\'' + k + '\' style="color:#000; line-height:1.5;" onclick=\'loadQuery("' + k + '")\'>' + k + '</a> &nbsp;&nbsp;&nbsp;';

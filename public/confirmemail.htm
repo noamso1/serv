@@ -1,0 +1,30 @@
+<script>
+
+  doit()
+  async function doit() {
+    let q = {act: "userregisterconfirm", email: getfield("email"), unlockKey: getfield("unlockKey")}
+    console.log(q)
+    let a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: JSON.stringify(q) });
+    a = await a.json();
+    if (a.ok) {
+      alert( "confirmed" )
+    } else {
+      alert( "error: " + a.error )
+    }
+  }
+
+  function getfield(f){
+    let a = location.search + '';
+    let r = '';
+    if(a[0] = '?') {
+      a = '&' + a.slice(1) + '&'
+      let x = a.indexOf('&' + f + '=');
+      if(x >= 0){
+        a = a.slice(x + f.length + 2);
+        r = a.substring(0, a.indexOf('&'));
+      }
+    }
+    return r;
+  }
+
+</script>

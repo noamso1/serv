@@ -284,10 +284,34 @@ function validateHash(p, h) {
   return false
 }
 
+//------pass
+async function changePassword(q, user) {
+  if (!q.email) return {ok: 0, error: "must specify email"}
+  let u = await global.db.collection("users").findOne({email: q.email})
+  if (!u) return {ok: 0, error: "user not found"}
+  let strength = passStrength(q.newPass); if (strength) return {ok:0, error: strength}
+  if (!validateHash(q.oldPass + u.passSalt, u.pass)) return {ok: 0, error: "wrong old password"}
+  let passSalt = randomString(10)
+  let res = await global.db.collection("users").updateOne({email: q.email}, {"$set": {pass: createHash(q.newPass + passSalt), passSalt}})
+  return {ok:1}
+}
+
+function passStrength(pass) {
+  let pp = (pass + '').split('') , r = ''
+  let lower = 'abcdefghijklmnopqrstuvwxyz'
+  let upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+  if ( pp.length < 8 ) r+= 'password must be at least 8 chars long. '
+  if ( !pp.some( e => lower.includes(e) ) ) r+= 'password must include lower case letters. '
+  if ( !pp.some( e => upper.includes(e) ) ) r+= 'password must include upper case letters. '
+  if ( !pp.some( e => !(lower + upper).includes(e) ) ) r+= 'password must include numeric of symbol characters. '
+  return r
+}
+
 //------register
 async function userRegister(q) {
   if ( !q.email ) return {"error": "must specify email"}
   if ( !q.pass ) return {"error": "must specify pass"}
+  let strength = passStrength(q.pass); if (strength) return {ok:0, error: strength}
   await global.db.collection('users').deleteMany( { email: q.email, status: 'unconfirmed' } )
   let uu = await global.db.collection('users').find({"email": q.email}).toArray()
   if (uu.length >= 1) return {"error": "email already exists"}
@@ -309,7 +333,7 @@ async function userRegister(q) {
   if( !r.insertedId ) return { ok: 0, "error": "cannot create user" }
 
   let link = q.origin + '/public/regconfirm.html?email=' + q.email + '&unlockKey=' + unlockKey
-  email.send( {from: "info@noamso.one", to: q.email, subject: "Confirm your email", html: link} )
+  email.send( {from: global.env.siteEmail, to: q.email, subject: "Confirm your email", html: link} )
 
   return {ok: 1, "message": "a confirmation link has been sent to " + q.email }
 }
@@ -327,33 +351,31 @@ async function userRegisterConfirm(q) {
   return { ok: 1 }
 }
 
-//------pass
-async function passwordChange(q, user) {
-  if (!q.email) return {ok: 0, error: "must specify email"}
-  let u = await global.db.collection("users").findOne({email: q.email})
-  if (!u) return {ok: 0, error: "user not found"}
-  let strength = passStrength(q.newPass); if (strength) return {ok:0, error: strength}
-  if (!validateHash(q.oldPass + u.passSalt, u.pass)) return {ok: 0, error: "wrong old password"}
-  let passSalt = randomString(10)
-  let res = await global.db.collection("users").updateOne({email: q.email}, {"$set": {pass: createHash(q.newPass + passSalt), passSalt}})
+//----------reset pass
+async function sendResetToken(q) {
+  let resetToken = { email: q.email, issued: Date.now() }; resetToken = encr(JSON.stringify(resetToken), global.tokenPass)
+  let url = q.origin + '/public/resetpass.html?email=' + q.email + '&resetToken=' + encodeURIComponent(resetToken) //resetToken.replace(/\+/g, '%2b')
+  email.send( {from: global.env.siteEmail , to: q.email, subject: "Password Reset", html: url} )
   return {ok:1}
 }
 
-
-function passStrength(pass) {
-  let pp = (pass + '').split('') , r = ''
-  let lower = 'abcdefghijklmnopqrstuvwxyz'
-  let upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  if ( pp.length < 8 ) r+= 'password must be at least 8 chars long. '
-  if ( !pp.some( e => lower.includes(e) ) ) r+= 'password must include lower case letters. '
-  if ( !pp.some( e => upper.includes(e) ) ) r+= 'password must include upper case letters. '
-  if ( !pp.some( e => !(lower + upper).includes(e) ) ) r+= 'password must include numeric of symbol characters. '
-  return r
+async function useResetToken(q) { //email,resetToken,newPass
+  if( !q.email ) return {ok: 0, error: "please specify email"}
+  let tok = decr(q.resetToken, global.tokenPass); if (!tok) tok = decr(q.resetToken, global.tokenPassLast);
+  if (tok) tok = JSON.parse(tok)
+  if( !tok || !tok.email || !tok.issued || tok.email != q.email ) return {ok: 0, error: "invalid reset token"}
+  if( !q.newPass ) return {ok: 0, error: "please choose a new password"}
+  let strength = passStrength(q.newPass); if (strength) return {ok:0, error: strength}
+  if( tok.issued < Date.now() - 600000 ) return {ok:0, error: "reset token expired"} // 10 min
+  let passSalt = randomString(10)
+  global.db.collection("users").updateOne({email: q.email}, {"$set": {pass: createHash(q.newPass + passSalt), passSalt}})
+  return {ok:1}
 }
 
 //-----------------------------------------
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
-  createHash, validateHash, passwordChange, passStrength, userRegister, userRegisterConfirm,
+  createHash, validateHash, changePassword, passStrength, userRegister, userRegisterConfirm, sendResetToken, useResetToken,
 }
+

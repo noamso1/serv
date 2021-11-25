@@ -1,0 +1,32 @@
+<center><br><br>
+<span id=divEmail></span><br><br>
+New Pass <input type=text id=newPass> <input type=button value='Submit' onclick='doit()'>
+
+<script>
+
+  async function doit() {
+    let q = {act: "passworduseresettoken", email: getfield("email"), resetToken: getfield("resetToken"), newPass: newPass.value}
+    console.log(q)
+    console.log(location.host)
+    let a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: JSON.stringify(q) });
+    a = await a.json();
+    document.write(JSON.stringify(a))
+  }
+  divEmail.innerHTML = getfield("email")
+
+  function getfield(f){
+    let a = location.search + '';
+    let r = '';
+    if(a[0] = '?') {
+      a = '&' + a.slice(1) + '&'
+      let x = a.indexOf('&' + f + '=');
+      if(x >= 0){
+        a = a.slice(x + f.length + 2);
+        r = a.substring(0, a.indexOf('&'));
+        r = decodeURIComponent(r)
+      }
+    }
+    return r;
+  }
+
+</script>

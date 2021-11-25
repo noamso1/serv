@@ -7,7 +7,7 @@ global.env = require('./env.json')
 const http = require('http')
 const fs = require('fs')
 const func = require('./func.js')
-const permissions = require('./permissions.js')
+const perm = require('./perm.js')
 const dbm = require('./dbm.js')
 //const sched = require('./sched.js')
 //const ws = require('./ws.js')
@@ -76,15 +76,21 @@ async function initServer() {
         delete q.user
 
         // actions without token
-        if (q.act == 'userregister') { reply( await func.userRegister(q) ); return; }
-        if (q.act == 'userregisterconfirm') { reply( await func.userRegisterConfirm(q) ); return; }
+        {
+          let r
+          if (q.act == 'userRegister') r = await func.userRegister(q)
+          if (q.act == 'userRegisterConfirm') r = await func.userRegisterConfirm(q)
+          if (q.act == 'sendResetToken') r = await func.sendResetToken(q)
+          if (q.act == 'useResetToken') r = await func.useResetToken(q)
+          if ( r ) { reply(r); return; }
+        }
 
         // authenticate
         {
           q.origin = req.headers.origin
           q.ip = req.headers['x-forwarded-for'] + ''; if ( q.ip == '' ) q.ip = req.connection.remoteAddress; if (q.ip.indexOf(':') >= 0) q.ip = q.ip.substring(q.ip.lastIndexOf(':')+1, q.ip.length)
           // To pass the IP address, edit /etc/nginx/nginx.conf, under http {} section add this line: proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          let r = await permissions.login(q); if (r) { reply(r); return }
+          let r = await perm.login(q); if (r) { reply(r); return }
         }
 
         // handle the query
@@ -92,11 +98,11 @@ async function initServer() {
         for (let q of qq) {
           let r = {}
           if (!q.data) q.data = []; if (typeof q.data == 'object' && !Array.isArray(q.data)) q.data = [q.data]
-          { let r = await permissions.checkPermissions(q); if (r) { reply( { error: r } ); return } }
+          { let r = await perm.checkPermissions(q); if (r) { reply( { error: r } ); return } }
           dbm.convertMongoIds(q.query)
 
           // actions
-          if (q.act == 'passwordChange') r = await func.passwordChange(q);
+          if (q.act == 'changePassword') r = await func.changePassword(q);
           if (['find', 'insert', 'update', 'upsert', 'delete', 'push', 'pull'].includes(q.act)) r = await dbm.dbDo(q);
 
           results.push(r);

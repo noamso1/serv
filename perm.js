@@ -15,7 +15,7 @@ function setPermissions(user) {
       ]
     }
   }
-  user.perm.push ( { act: "passwordChange", queryAdd: { email: user.email } } )
+  user.perm.push ( { act: "changePassword", queryAdd: { email: user.email } } )
 }
 
 async function checkPermissions(q) {
@@ -145,5 +145,5 @@ async function login(q) {
   if (tokenAge >= 5) return { error: 'token expired' }
 }
 
-module.exports = {login, setPermissions, checkPermissions}
+module.exports = { login, setPermissions, checkPermissions, }
 
