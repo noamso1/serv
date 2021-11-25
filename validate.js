@@ -12,7 +12,7 @@ async function validate(q) {
       fields: [
         { name: "email", type: 'string', mandatory: true, unique: true },
         { name: "name", type: 'string'},
-        { name: "role", type: 'string', default: 'regular', options: ['admin', 'regular'] },
+        { name: "role", type: 'string', default: 'user', options: ['user', 'admin'] },
         { name: "pass", type: 'string'},
       ],
     },
