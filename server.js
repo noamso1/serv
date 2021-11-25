@@ -11,7 +11,6 @@ const perm = require('./perm.js')
 const dbm = require('./dbm.js')
 //const sched = require('./sched.js')
 //const ws = require('./ws.js')
-const email = require('./email.js')
 
 // load the arguments: node main.js db=serv port=9999 ----> arg = {"db": "serv", "port": "9999"}
 global.arg = {};
