@@ -77,8 +77,7 @@ async function checkPermissions(q) {
   // revoked user tokens TODO - should be in the redis server...
   if (!global.revokedUsers) global.revokedUsers = []
   if (q.col == 'users' && q.act == 'update' && q.data[0].status == 'disabled') {
-    global.revokedUsers.push(q.query._id + '')
-    global.revokedUsers = global.revokedUsers.filter((v, i) => global.revokedUsers.indexOf(v) === i); //unique
+    if (!global.revokedUsers.includes(q.query._id + '')) global.revokedUsers.push(q.query._id + '')
   }
   if (q.col == 'users' && q.act == 'update' && q.data[0].status != 'disabled') {
     let x = global.revokedUsers.indexOf(q.query._id + '')
