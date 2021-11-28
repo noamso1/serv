@@ -14,6 +14,7 @@ async function validate(q) {
         { name: "name", type: 'string'},
         { name: "role", type: 'string', default: 'user', options: ['user', 'admin'] },
         { name: "pass", type: 'string'},
+        { name: "registered", type: 'number', default: '$now' },
       ],
     },
 
@@ -52,6 +53,7 @@ async function validate(q) {
 
         let f = def.name
         if ( q.act == 'insert' && def.mandatory && !item[f] ) return { error: 'must insert ' + q.col + '.' + f };
+        if ( def.default == '$now' ) def.default = new Date().getTime()
         if ( q.act == 'insert' && !item[f] ) item[f] = def.default 
         if ( q.act == 'insert' && !item[f] ) item[f] = '' 
         if ( ( q.act == 'insert' || q.act == 'update' ) && def.unique && item[f] ) {
@@ -67,10 +69,10 @@ async function validate(q) {
         if ( def ) {
           if ( def.type == 'increment' && q.act == 'insert' && !item[f] ) item[f] = await func.getSeedInc(q.col)
 
-          if ( def.type == 'string' && q.act == 'insert' && !item[f] ) item[f] += ''
+          if ( def.type == 'string' && ( item[f] || q.act == 'insert' && !item[f] ) ) item[f] += ''
 
           if ( def.type == 'stringArray' && ( q.act == 'insert' || item[f] ) ) {
-            if ( typeof item[f] == 'string' && item[f] != '' ) item[f] =  item[f].split(',')
+            if ( typeof item[f] == 'string' && item[f] != '' ) item[f] = item[f].split(',')
             if ( !item[f] || !Array.isArray(item[f]) ) item[f] = []
             for ( let i = 0; i < item[f].length; i++ ) { item[f][i] += ''; item[f][i] = item[f][i].trim() }
             item[f] = item[f].filter( e => e != '' )
