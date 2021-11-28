@@ -4,17 +4,10 @@ const func = require('./func.js');
 
 async function doit() {
 
-  let m = await global.db.collection("system").findOne({ "_id": "lastMigration" }); if ( !m ) m = { value: 0 }; m = m.value
-
-  async function incrementMigration() {
-    m++
-    await global.db.collection("system").updateOne( { "_id": "lastMigration" }, { "$set": { "value": m } }, { upsert: true} );
-  }
-
-  // migration 1 - insert first user
-  if ( m < 1 ) {
-    let t = await global.db.collection("users").findOne({});
-    if (!t) {
+  // insert first user
+  {
+    let u = await db.collection('users').findOne( { email:'kiki@kiki.com' } )
+    if ( !u ) {
       //let p = func.randomString(10, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
       let p = '1'
       let salt = func.randomString(10)
@@ -29,13 +22,6 @@ async function doit() {
       let t = await global.db.collection("users").insertOne(u);
       console.log('created first user')
     }
-    await incrementMigration()
-  }
-
-  // migration 2 - ...
-  if ( m < 2 ) {
-
-    //await incrementMigration()
   }
 
 }
