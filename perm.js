@@ -134,7 +134,7 @@ async function login(q) {
     }
     user.issued = now; if (global.dbName == 'serv') user.issued = 9999999999999 // for local debug
     let token = func.enc(JSON.stringify(user), global.tokenPass)
-    delete user.pass;
+    delete user.pass; delete user.passSalt
     setPermissions(user)
     return { token, user  } // settings: await func.fetchSettings()
   }
