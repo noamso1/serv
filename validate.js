@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 const func = require('./func.js');
+const mongodb = require('mongodb');
 
 async function validate(q) {
 
@@ -67,6 +68,9 @@ async function validate(q) {
         let def; if ( schema[q.col]?.fields ) def = schema[q.col]?.fields.find( e => e.name == f )
         if ( !schema[q.col]?.allowExcessive && item[f] && !def ) return { error: 'excessive field ' + q.col + '.' + f }
         if ( def ) {
+
+          if ( def.type == 'mongoid' && typeof item[f] == 'string' ) item[f] = mongodb.ObjectId(item[f])
+
           if ( def.type == 'increment' && q.act == 'insert' && !item[f] ) item[f] = await func.getSeedInc(q.col)
 
           if ( def.type == 'string' && ( item[f] || q.act == 'insert' && !item[f] ) ) item[f] += ''
