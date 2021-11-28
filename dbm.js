@@ -63,15 +63,19 @@ async function dbDo(q) {
 
 function convertMongoIds(q) {
   // convert string _id to mongo objectid
-  if(!q) return;
-  if (typeof q._id === 'object') {
-    if(q._id["$in"]) q._id["$in"] = q._id["$in"].map(e => mongodb.ObjectId(e));
-    if(q._id["$ne"]) q._id["$ne"] = mongodb.ObjectId(q._id["$ne"]);
+  if (q.query) {
+    convertKeysToMongoIds(q.query)
+    if (typeof q._id === 'object') {
+      if(q._id["$in"]) q._id["$in"] = q._id["$in"].map(e => mongodb.ObjectId(e));
+      if(q._id["$ne"]) q._id["$ne"] = mongodb.ObjectId(q._id["$ne"]);
+    }
   }
-  else if (q._id) {
-    q._id = mongodb.ObjectId(q._id);
+  for ( let d of q.data ) convertKeysToMongoIds(d)
+  function convertKeysToMongoIds(d) {
+    for ( let k in d ) {
+      if ( k.endsWith('_id') && typeof d[k] == 'string' ) d[k] = mongodb.ObjectId(d[k])
+    }
   }
-  return q
 }
 
 module.exports = { dbConnect, dbDo, convertMongoIds }

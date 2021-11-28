@@ -12,6 +12,10 @@ function setPermissions(user) {
         { col: "users", act: "insert" },
         { col: "users", act: "update" },
         { col: "users", act: "delete" },
+        { col: "trans", act: "find" },
+        { col: "trans", act: "insert" },
+        { col: "trans", act: "update" },
+        { col: "trans", act: "delete" },
       ]
     }
   }

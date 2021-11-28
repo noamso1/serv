@@ -46,11 +46,10 @@ async function validate(q) {
   }
 
   // -------------------apply schema---------------
-  if ( [ 'insert', 'update' ].includes(q.act) ) {
-
+  if ( [ 'insert', 'update' ].includes(q.act) && schema[q.col] ) {
     for ( let item of q.data ) { 
-
       for ( let def of schema[q.col].fields ) {
+
         let f = def.name
         if ( q.act == 'insert' && def.mandatory && !item[f] ) return { error: 'must insert ' + q.col + '.' + f };
         if ( q.act == 'insert' && !item[f] ) item[f] = def.default 
