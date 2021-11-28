@@ -70,12 +70,12 @@ function convertMongoIds(q) {
       if(q._id["$ne"]) q._id["$ne"] = mongodb.ObjectId(q._id["$ne"]);
     }
   }
-  for ( let d of q.data ) convertKeysToMongoIds(d)
-  function convertKeysToMongoIds(d) {
-    for ( let k in d ) {
-      if ( k.endsWith('_id') && typeof d[k] == 'string' ) d[k] = mongodb.ObjectId(d[k])
-    }
-  }
+  //for ( let d of q.data ) convertKeysToMongoIds(d)
+  //function convertKeysToMongoIds(d) {
+  //  for ( let k in d ) {
+  //    if ( k.endsWith('_id') && typeof d[k] == 'string' ) d[k] = mongodb.ObjectId(d[k])
+  //  }
+  //}
 }
 
 module.exports = { dbConnect, dbDo, convertMongoIds }
