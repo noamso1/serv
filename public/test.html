@@ -30,7 +30,7 @@
     a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: q.value });
     r = await a.json();
     if (r.token) tok.value = r.token;
-    t = JSON.stringify(r, null, 4);
+    t = JSON.stringify(r, null, 2);
     t = jsonColor(t);
     divmain.innerHTML += '<pre>' + t + '</pre>';
     divmain.style.height = 40 + countString(t, '\n') * 18 
@@ -66,7 +66,7 @@
   function loadQuery(k) {
     let t = { ...qq[k] }
     if (t.token == '!') t.token = tok.value
-    q.value = JSON.stringify(t, null, 4);
+    q.value = JSON.stringify(t, null, 2);
   }
 
   let qq = {

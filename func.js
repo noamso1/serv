@@ -321,7 +321,7 @@ async function register(q) {
    "email": q.email,
    "name": q.name,
    "phone": q.phone,
-   "role": "passenger",
+   "role": "user",
    "status": "unconfirmed",
    "unlockKey": unlockKey,
    "pass": createHash(q.pass + passSalt),
