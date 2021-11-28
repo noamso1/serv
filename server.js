@@ -98,8 +98,8 @@ async function initServer() {
         for (let q of qq) {
           let r = {}
           if (!q.data) q.data = []; if (typeof q.data == 'object' && !Array.isArray(q.data)) q.data = [q.data]
-          dbm.convertMongoIds(q)
           { let r = await perm.checkPermissions(q); if (r) { reply( { error: r } ); return } }
+          dbm.convertMongoIds(q)
 
           // actions
           if (q.act == 'changePassword') r = await func.changePassword(q);
