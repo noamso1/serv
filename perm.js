@@ -99,6 +99,7 @@ async function initTokenPass() {
     function tokenPassChange() {
       global.tokenPassLast = global.tokenPass
       global.tokenPass = func.randomString(50)
+      if ( global.arg.local ) { global.tokenPass = '1'; global.tokenPassLast = '1' }
       global.db.collection('system').updateOne( { _id: 'tokenPass' }, { $set: { value: global.tokenPass } }, { upsert: true } )
       global.db.collection('system').updateOne( { _id: 'tokenPassLast' }, { $set: { value: global.tokenPassLast } }, { upsert: true } )
     }
