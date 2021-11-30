@@ -26,8 +26,9 @@
   async function show() {
     let r = '', a = '', t = '';
     let qj = JSON.parse(q.value);
+    if (qj.token == '...') qj.token = tok.value
     divmain.innerHTML = '';
-    a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: q.value });
+    a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: JSON.stringify(qj) });
     r = await a.json();
     if (r.token) tok.value = r.token;
     t = JSON.stringify(r, null, 2);
@@ -65,16 +66,15 @@
 
   function loadQuery(k) {
     let t = { ...qq[k] }
-    if (t.token == '!') t.token = tok.value
     q.value = JSON.stringify(t, null, 2);
   }
 
   let qq = {
     "Login": { "act": "login", "query": { "email": "kiki@kiki.com", "pass": "1" } },
-    "Refresh Token": { "act": "refreshtoken", "token": "!" },
-    "Find User": { "token": "!", "act": "find", "col": "users", "count": 1, "query": {"name": "kiki"}, "sums": ["price"] },
+    "Refresh Token": { "act": "refreshtoken", "token": "..." },
+    "Find User": { "token": "...", "act": "find", "col": "users", "count": 1, "query": {"name": "kiki"}, "sums": ["price"] },
     "Multiple Queries": {
-      "token": "!",
+      "token": "...",
       "queries": [{
           "act": "find",
           "col": "users",
@@ -89,12 +89,12 @@
         }
       ]
     },
-    "Insert User": { "token": "!", "act": "insert", "col": "users", "data": [{ "email": "kiki@kiki.com", "name": "kiki", "role": "admin", "pass": "1" }] },
-    "Update User": { "token": "!", "act": "update", "col": "users", "query": { "name": "bubu1" }, "data": { "age": 23 } },
-    "Delete User": { "token": "!", "act": "delete", "col": "users", "query": { "_id": "5ea55bacf368fa3e4770666a" } },
+    "Insert User": { "token": "...", "act": "insert", "col": "users", "data": [{ "email": "kiki@kiki.com", "name": "kiki", "role": "admin", "pass": "1" }] },
+    "Update User": { "token": "...", "act": "update", "col": "users", "query": { "name": "bubu1" }, "data": { "age": 23 } },
+    "Delete User": { "token": "...", "act": "delete", "col": "users", "query": { "_id": "5ea55bacf368fa3e4770666a" } },
     "Push to array":
       {
-          "token": "!",
+          "token": "...",
           "act": "push",
           "col": "users",
           "query": { "name": "kiki" },
@@ -102,7 +102,7 @@
       },
     "Pull from array":
       {
-          "token": "!",
+          "token": "...",
           "act": "pull",
           "col": "users",
           "query": {
@@ -113,7 +113,7 @@
           }
       },
     "register":{ "act":"register", "email": "kiki@kiki.com", "pass": "123" },
-    "changePassword":{ "token": "!","act":"changePassword", "email": "kiki@kiki.com", "oldPass": "123", "newPass": "456" },
+    "changePassword":{ "token": "...","act":"changePassword", "email": "kiki@kiki.com", "oldPass": "123", "newPass": "456" },
     "sendResetToken": { "act": "sendResetToken", "email": "kiki@kiki.com" },
     "useResetToken": { "act": "useResetToken", "email": "kiki@kiki.com", "resetToken": "...", "newPass": "123" },
   }
