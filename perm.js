@@ -14,6 +14,14 @@ function setPermissions(user) {
         { col: "users", act: "delete" },
       ]
     }
+    if (user.role == 'guest') {
+      user.perm = [
+        { act: 'register'},
+        { act: 'registerConfirm'},
+        { act: 'sendResetToken'},
+        { act: 'useResetToken'},
+      ]
+    }
   }
   user.perm.push ( { act: "changePassword", queryAdd: { email: user.email } } )
 }

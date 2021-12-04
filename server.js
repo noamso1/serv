@@ -72,18 +72,8 @@ async function initServer() {
 
         // parse the json input
         try { q = JSON.parse(buf); } catch (error) { reply( { error: "invalid json" } ); return }
-        delete q.user
+        q.user = { name: 'Guest', email: 'guest', role: 'guest' }
         await perm.initTokenPass()
-
-        // actions without token
-        {
-          let r
-          if (q.act == 'register') r = await func.register(q)
-          if (q.act == 'registerConfirm') r = await func.registerConfirm(q)
-          if (q.act == 'sendResetToken') r = await func.sendResetToken(q)
-          if (q.act == 'useResetToken') r = await func.useResetToken(q)
-          if ( r ) { reply(r); return; }
-        }
 
         // authenticate
         {
@@ -100,6 +90,12 @@ async function initServer() {
           if (!q.data) q.data = []; if (typeof q.data == 'object' && !Array.isArray(q.data)) q.data = [q.data]
           { let r = await perm.checkPermissions(q); if (r) { reply( { error: r } ); return } }
           dbm.convertMongoIds(q)
+
+          // guest level actions
+          if (q.act == 'register') r = await func.register(q)
+          if (q.act == 'registerConfirm') r = await func.registerConfirm(q)
+          if (q.act == 'sendResetToken') r = await func.sendResetToken(q)
+          if (q.act == 'useResetToken') r = await func.useResetToken(q)
 
           // actions
           if (q.act == 'changePassword') r = await func.changePassword(q);
