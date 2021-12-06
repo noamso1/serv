@@ -117,40 +117,41 @@ async function initTokenPass() {
 let loginFails = []
 async function login(q) {
   // validate token
+  let validated
   if (q.token) {
     let t = func.dec(q.token, global.tokenPass); if (!t) t = func.dec(q.token, global.tokenPassLast);
-    if (t) q.user = JSON.parse(t);
+    if (t) { q.user = JSON.parse(t); validated = true }
   }
 
   // refresh token
   if (q.act == 'refreshtoken') {
     if (!q.user || !q.user.email) return { error: "bad token" }
-    q.act = 'login'; q.actWas = 'refreshtoken'; q.query = { "email": q.user.email, "passHash": q.user.pass }
+    q = { act: 'login', email: q.user.email }
   }
 
   // login
   let now = Date.now()
-  if (q.act == 'login' && q.query) {
-    let fails = loginFails.filter(a => (a.ip == q.ip || a.email == q.query.email) && a.time > now - 60000)
+  if ( q.act == 'login' && q.email ) {
+    let fails = loginFails.filter(a => (a.ip == q.ip || a.email == q.email) && a.time > now - 60000)
     if (fails.length >= 4) return { error: 'too many login tries, please wait a few seconds.' }
-    let user = await global.db.collection("users").findOne({ email: q.query.email.toLowerCase() });
-    if (user) { if (!func.validateHash(q.query.pass + user.passSalt, user.pass) && q.query.passHash != user.pass ) user = undefined; }
+    let user = await global.db.collection("users").findOne({ email: q.email.toLowerCase() })
+    if (user) { if (!func.validateHash(q.pass + user.passSalt, user.pass) && !validated ) user = undefined }
     if (!user) {
       loginFails = loginFails.filter(a => a.time > now - 60000)
-      loginFails.push({ "ip": q.ip, "email": q.query.email, "time": now });
+      loginFails.push({ "ip": q.ip, "email": q.email, "time": now })
       return { error: 'permission denied' }
     }
-    user.issued = now; if (global.dbName == 'serv') user.issued = 9999999999999 // for local debug
+    delete user.pass; delete user.passSalt; user.issued = now
+    if (global.dbName == 'serv') user.issued = 9999999999999 // for local debug
     let token = func.enc(JSON.stringify(user), global.tokenPass)
-    delete user.pass; delete user.passSalt
     setPermissions(user)
-    return { token, user  } // settings: await func.fetchSettings()
+    return { token, user }
   }
 
   // check
   if (!q.user) return { error: 'invalid token' }
-  let tokenAge = (now - q.user.issued) / 60000 // minutes
-  if (tokenAge >= 5) return { error: 'token expired' }
+  let age = (now - q.user.issued) / 60000 // minutes
+  if (age >= 5) return { error: 'token expired' }
 }
 
 module.exports = { login, setPermissions, checkPermissions, initTokenPass }
