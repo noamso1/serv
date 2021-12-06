@@ -116,11 +116,16 @@ async function initTokenPass() {
 
 let loginFails = []
 async function login(q) {
+  let validated, now = Date.now()
   // validate token
-  let validated
   if (q.token) {
     let t = func.dec(q.token, global.tokenPass); if (!t) t = func.dec(q.token, global.tokenPassLast);
-    if (t) { q.user = JSON.parse(t); validated = true }
+    if (t) {
+      q.user = JSON.parse(t)
+      let age = (now - q.user.issued) / 60000; if (age >= 5) return { error: 'token expired' }
+      validated = true // for refreshtoken
+    }
+    if (!q.user) return { error: 'invalid token' }
   }
 
   // refresh token
@@ -130,7 +135,6 @@ async function login(q) {
   }
 
   // login
-  let now = Date.now()
   if ( q.act == 'login' && q.email ) {
     let fails = loginFails.filter(a => (a.ip == q.ip || a.email == q.email) && a.time > now - 60000)
     if (fails.length >= 4) return { error: 'too many login tries, please wait a few seconds.' }
@@ -148,10 +152,6 @@ async function login(q) {
     return { token, user }
   }
 
-  // check
-  if (!q.user) return { error: 'invalid token' }
-  let age = (now - q.user.issued) / 60000 // minutes
-  if (age >= 5) return { error: 'token expired' }
 }
 
 module.exports = { login, setPermissions, checkPermissions, initTokenPass }
