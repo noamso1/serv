@@ -19,15 +19,15 @@ async function dbDo(q) {
 
   let vres = await validate(q); if (vres.error) return vres;
 
-  if (q.act == 'find' && q.count) {
+  if (q.act == 'find' && q.count == 2) {
     if (q.count) r.count = await global.db.collection(q.col).find(q.query,{}).count()
-  }
-  if (q.act == 'find' && q.count != 2) {
+  } else if (q.act == 'find') {
     if (q.count) r.count = await global.db.collection(q.col).find(q.query,{}).count();
     let skip = q.skip; if (!skip) skip = 0;
     let limit = q.limit; if (!limit) limit = 999999;
     let sort = q.sort; if (!sort) sort = {};
     let project = q.project; if (!project) project = {};
+
     if (q.sums) {
       r.sums = []
       let ag = [ { $match: q.query }, { $group: { _id: '1' } } ]
@@ -35,7 +35,19 @@ async function dbDo(q) {
       let aa = await db.collection(q.col).aggregate(ag).toArray()
       for ( let i = 0; i < q.sums.length; i++ ) r.sums.push( aa[0] ? aa[0]['sum' + i] : 0 )        
     }
-    r.data = await global.db.collection(q.col).find(q.query).skip(skip).project(project).limit(limit).sort(sort).toArray()
+
+    if (q.distincts) {
+      r.distincts = []
+      for ( let d of q.distincts ) {
+        let ag = [ { "$match": q.query }, { "$group": { "_id": "$" + d } }, { "$count": "count" } ]
+        let res = await global.db.collection(q.col).aggregate(ag).toArray()
+        if ( res[0]?.count ) { r.distincts.push( res[0].count ) } else { r.distincts.push(0) }
+      }
+    }
+
+    r.data = await global.db.collection(q.col).find(q.query).skip(skip).project(project).limit(limit).sort(sort)
+    if (q.count) r.count = await r.data.count()
+    r.data = await r.data.toArray()
   }
 
   else if (q.act == 'insert' && q.data.length) {
