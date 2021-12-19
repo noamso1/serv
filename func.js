@@ -154,7 +154,6 @@ function enc(thetext, thepass) {
   let text = thetext
   let addition = crypto.randomBytes(Math.random() * 10 + 5).toString('base64')
   text += '.' + addition
-  //let pass = thepass; while (pass.length < 32) pass += pass; pass = pass.substring(0, 32)
   let pass = crypto.createHash('sha256').update(thepass).digest('buffer')
   let iv = crypto.randomBytes(16)
   let cipher = crypto.createCipheriv('aes-256-cbc', pass , iv);
@@ -165,7 +164,6 @@ function enc(thetext, thepass) {
 
 function dec(thetext, thepass) {
   let text = thetext
-  //let pass = thepass; while (pass.length < 32) pass += pass; pass = pass.substring(0, 32)
   let pass = crypto.createHash('sha256').update(thepass).digest('buffer')
   try {
     let ivb = text.substring(text.lastIndexOf('.') + 1, text.length)
