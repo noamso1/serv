@@ -17,7 +17,7 @@ async function doit() {
         "name": "kiki",
         "role": "admin",
         "passSalt" : salt,
-        "pass": func.createHash(p + salt)
+        "passHash": func.createHash(p + salt)
       }
       let t = await global.db.collection("users").insertOne(u);
       console.log('created first user')

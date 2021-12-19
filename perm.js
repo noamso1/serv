@@ -8,7 +8,7 @@ function setPermissions(user) {
     user.perm = []
     if (user.role == 'admin') {
       user.perm = [
-        { col: "users", act: "find", project: { pass: 0, passSalt: 0 } },
+        { col: "users", act: "find", project: { passHash: 0, passSalt: 0 } },
         { col: "users", act: "insert" },
         { col: "users", act: "update" },
         { col: "users", act: "delete" },
@@ -139,14 +139,14 @@ async function login(q) {
     let fails = loginFails.filter(a => (a.ip == q.ip || a.email == q.email) && a.time > now - 60000)
     if (fails.length >= 4) return { error: 'too many login tries, please wait a few seconds.' }
     let user = await global.db.collection("users").findOne({ email: q.email.toLowerCase() })
-    if (user) { if (!func.validateHash(q.pass + user.passSalt, user.pass) && !validated ) user = undefined }
+    if (user) { if (!func.validateHash(q.pass + user.passSalt, user.passHash) && !validated ) user = undefined }
     if (!user) {
       loginFails = loginFails.filter(a => a.time > now - 60000)
       loginFails.push({ "ip": q.ip, "email": q.email, "time": now })
       return { error: 'permission denied' }
     }
-    delete user.pass; delete user.passSalt; user.issued = now
-    if (global.dbName == 'serv') user.issued = 9999999999999 // for local debug
+    delete user.passHash; delete user.passSalt; user.issued = now
+    if ( global.arg.local ) user.issued = 9999999999999 // for local debug
     let token = func.enc(JSON.stringify(user), global.tokenPass)
     setPermissions(user)
     return { token, user }

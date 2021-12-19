@@ -290,9 +290,9 @@ async function changePassword(q, user) {
   let u = await global.db.collection("users").findOne({email: q.email})
   if (!u) return {ok: 0, error: "user not found"}
   let strength = passStrength(q.newPass); if (strength) return {ok:0, error: strength}
-  if (!validateHash(q.oldPass + u.passSalt, u.pass)) return {ok: 0, error: "wrong old password"}
+  if (!validateHash(q.oldPass + u.passSalt, u.passHash)) return {ok: 0, error: "wrong old password"}
   let passSalt = randomString(10)
-  let res = await global.db.collection("users").updateOne({email: q.email}, {"$set": {pass: createHash(q.newPass + passSalt), passSalt}})
+  let res = await global.db.collection("users").updateOne({email: q.email}, {"$set": {passHash: createHash(q.newPass + passSalt), passSalt}})
   return {ok:1}
 }
 
@@ -324,7 +324,7 @@ async function register(q) {
    "role": "user",
    "status": "unconfirmed",
    "unlockKey": unlockKey,
-   "pass": createHash(q.pass + passSalt),
+   "passHash": createHash(q.pass + passSalt),
    "passSalt": passSalt,
    "registered": Date.now(),
   }
@@ -368,7 +368,7 @@ async function useResetToken(q) { //email,resetToken,newPass
   let strength = passStrength(q.newPass); if (strength) return {ok:0, error: strength}
   if( tok.issued < Date.now() - 600000 ) return {ok:0, error: "reset token expired"} // 10 min
   let passSalt = randomString(10)
-  global.db.collection("users").updateOne({email: q.email}, {"$set": {pass: createHash(q.newPass + passSalt), passSalt}})
+  global.db.collection("users").updateOne({email: q.email}, {"$set": {passHash: createHash(q.newPass + passSalt), passSalt}})
   return {ok:1}
 }
 
