@@ -138,7 +138,7 @@ async function login(q) {
   if ( q.act == 'login' && q.email ) {
     let fails = loginFails.filter(a => (a.ip == q.ip || a.email == q.email) && a.time > now - 60000)
     if (fails.length >= 4) return { error: 'too many login tries, please wait a few seconds.' }
-    let user = await global.db.collection("users").findOne({ email: q.email.toLowerCase() })
+    let user = await global.db.collection("users").findOne({ email: q.email.toLowerCase(), status: 'active' })
     if (user) { if (!func.validateHash(q.pass + user.passSalt, user.passHash) && !validated ) user = undefined }
     if (!user) {
       loginFails = loginFails.filter(a => a.time > now - 60000)

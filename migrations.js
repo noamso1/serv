@@ -16,6 +16,7 @@ async function doit() {
         "email": "kiki@kiki.com",
         "name": "kiki",
         "role": "admin",
+        "status": "active",
         "passSalt" : salt,
         "passHash": func.createHash(p + salt)
       }
