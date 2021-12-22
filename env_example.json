@@ -4,7 +4,10 @@
   "dbName": "serv",
   "dictPort": 2222,
   "dictPass": "ppp",
-  "sgKey": "SendGrid_API_Key...",
-  "siteEmail": "info@noamso.one"
+  "sgKey": "",
+  "siteEmail": "info@noamso.one",
+  "smtpService": "",
+  "smtpUser": "",
+  "smtpPass": ""
 }
 
