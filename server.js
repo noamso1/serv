@@ -100,6 +100,7 @@ async function initServer() {
           // actions
           if (q.act == 'changePassword') r = await func.changePassword(q);
           if (['find', 'insert', 'update', 'upsert', 'delete', 'push', 'pull'].includes(q.act)) r = await dbm.dbDo(q);
+          if ( q.lookups ) await func.addLookups(q, r)
 
           results.push(r);
         }
