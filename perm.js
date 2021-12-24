@@ -98,8 +98,8 @@ async function checkPermissions(q) {
 async function initTokenPass() {
   if ( !global.tokenPass ) {
     await getTokenPass()
-    if ( !process.env.NODE_APP_INSTANCE ) setInterval(changeTokenPass, 30 * 60000) // first instance
-    if ( process.env.NODE_APP_INSTANCE ) setInterval(getTokenPass, 10 * 60000) // other instances
+    if ( process.env.NODE_APP_INSTANCE == '0' ) setInterval(changeTokenPass, 30 * 60000) // first instance
+    if ( process.env.NODE_APP_INSTANCE != '0' ) setInterval(getTokenPass, 10 * 60000) // other instances
   }
   async function getTokenPass() {
     let t
