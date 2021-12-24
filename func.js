@@ -372,20 +372,21 @@ async function useResetToken(q) { //email,resetToken,newPass
 
 // add lookups - much faster than aggregate
 // { "token": "...", "act": "find", "col": "comments", "skip": 0, "limit": 20, "query": { "id": "123" },
-//   "lookups": [ { "field": "user_id", "col": "users", "project": { "name": 1 } } ] }
+//   "lookups": [ { "field": "user_id", "col": "users", "as": "user", "project": { "name": 1 } } ] }
 async function addLookups(q, r) {
   if ( q.act == 'find' ) {
     if (!Array.isArray(q.lookups)) q.lookups = []
     for ( let look of q.lookups ) {
       if ( !look.foreign ) look.foreign = "_id"
       if ( !look.project ) look.project = {}
+      if ( !look.as ) look.as = look.field + '_doc'
       let ii = r.data.map( e => e[look.field] ); ii = uniqueArray(ii)
       let qu = {}; qu[look.foreign] = { $in: ii }
       let found = await db.collection(look.col).find( qu ).project(look.project).toArray()
       for ( let d of r.data ) {
         let i = d[look.field].toString()
         let f = found.find( e => e[look.foreign] == i )
-        if ( f ) d[look.field + '_doc'] = f
+        if ( f ) d[look.as] = f
       }
     }
   }
