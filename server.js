@@ -83,6 +83,14 @@ async function initServer() {
           let r = await perm.login(q); if (r) { reply(r); return }
         }
 
+        // log
+        if ( arg.log ) {
+          let a = func.clone(q); delete a.token
+          let f = '../log/' + global.dbName + '-' + new Date().toISOString().substring(0,10) + '.log'
+          let text = 'REQ|' + new Date().toISOString() + '|' + req.connection.remoteAddress + '|' + user?.email + '|' + JSON.stringify(a).replace(/\n/g, ' ') + '\n'
+          func.addLog2(f, text)
+        }
+
         // handle the query
         let qq = q.queries,  results = []; if ( !qq ) { qq = [q] }; for (let t of qq) { t.ip = q.ip; t.origin = q.origin; t.user = q.user }
         for (let q of qq) {
@@ -121,7 +129,11 @@ async function initServer() {
         "Connection": "close"
       });
       res.end(JSON.stringify(r))
-      if ( global.arg.logAll ) func.addLog('../log.txt', new Date().toISOString() + ' ' + req.connection.remoteAddress + ' RES\n' + JSON.stringify(r) + '\n')
+      if ( arg.log == '2' ) {
+        let f = '../log/' + global.dbName + '-' + new Date().toISOString().substring(0,10) + '.log'
+        let text = 'RES|' + new Date().toISOString() + '|' + req.connection.remoteAddress + '|' + JSON.stringify(r).replace(/\n/g, ' ') + '\n'
+        func.addLog2(f, text)
+      }
       return
     }
 
