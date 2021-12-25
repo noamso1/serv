@@ -392,10 +392,19 @@ async function addLookups(q, r) {
   }
 }
 
+function addLog(f, s) {
+  fs.appendFileSync(f, s + '\n', 'utf8')
+}
+
+function addLog2(f, s) {
+  fs.appendFile( f, s, { encoding: 'utf8' }, function(e){} ) 
+}
+
 //-----------------------------------------
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, changePassword, passStrength, register, registerConfirm, sendResetToken, useResetToken, addLookups,
+  addLog, addLog2
 }
 

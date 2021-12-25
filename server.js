@@ -60,7 +60,7 @@ async function initServer() {
 
     // ----------------------------- API
     if (req.method == 'POST') {
-      let q = {}, buf = '';
+      let q = {}, buf = '', requestId
       req.on('data', function (data) { buf += data; });
       req.on('end', async function () {
 
@@ -75,20 +75,21 @@ async function initServer() {
         q.user = { name: 'Guest', email: 'guest', role: 'guest' }
         await perm.initTokenPass()
 
+        // log
+        if ( arg.log ) {
+          requestId = func.randomString(10) 
+          let a = func.clone(q); delete a.token
+          let f = '../log/' + global.dbName + '-' + new Date().toISOString().substring(0,10) + '.log'
+          let text = 'Q|' + new Date().toISOString() + '|' + requestId + '|' + clientIP() + '|' + q.user?.email + '|' + JSON.stringify(a).replace(/\n/g, '§') + '\n'
+          func.addLog2(f, text)
+        }
+
         // authenticate
         {
           q.origin = req.headers.origin
           q.ip = req.headers['x-forwarded-for'] + ''; if ( q.ip == '' ) q.ip = req.connection.remoteAddress; if (q.ip.indexOf(':') >= 0) q.ip = q.ip.substring(q.ip.lastIndexOf(':')+1, q.ip.length)
           // To pass the IP address, edit /etc/nginx/nginx.conf, under http {} section add this line: proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
           let r = await perm.login(q); if (r) { reply(r); return }
-        }
-
-        // log
-        if ( arg.log ) {
-          let a = func.clone(q); delete a.token
-          let f = '../log/' + global.dbName + '-' + new Date().toISOString().substring(0,10) + '.log'
-          let text = 'REQ|' + new Date().toISOString() + '|' + req.connection.remoteAddress + '|' + user?.email + '|' + JSON.stringify(a).replace(/\n/g, ' ') + '\n'
-          func.addLog2(f, text)
         }
 
         // handle the query
@@ -117,24 +118,34 @@ async function initServer() {
         if ( q.queries) { reply( { results } ) } else { reply( results[0] ) }
         return
       });
-    }
 
-    function reply(r) {
-      let statusCode = 200; if (r.error || r.ok == 0) statusCode = 400
-      res.writeHead(statusCode, {
-        "Content-Type": "text/json",
-        "Access-Control-Allow-Origin": "*", //cors
-        "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
-        "Access-Control-Max-Age": 86400,
-        "Connection": "close"
-      });
-      res.end(JSON.stringify(r))
-      if ( arg.log == '2' ) {
-        let f = '../log/' + global.dbName + '-' + new Date().toISOString().substring(0,10) + '.log'
-        let text = 'RES|' + new Date().toISOString() + '|' + req.connection.remoteAddress + '|' + JSON.stringify(r).replace(/\n/g, ' ') + '\n'
-        func.addLog2(f, text)
+      function reply(r) {
+        let statusCode = 200; if (r.error || r.ok == 0) statusCode = 400
+        res.writeHead(statusCode, {
+          "Content-Type": "text/json",
+          "Access-Control-Allow-Origin": "*", //cors
+          "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+          "Access-Control-Max-Age": 86400,
+          "Connection": "close"
+        });
+        res.end(JSON.stringify(r))
+        if ( arg.log == '2' ) {
+          let f = '../log/' + global.dbName + '-' + new Date().toISOString().substring(0,10) + '.log'
+          let text = 'R|' + new Date().toISOString() + '|' + requestId + '|' + JSON.stringify(r).replace(/\n/g, '§') + '\n'
+          func.addLog2(f, text)
+        }
+        return
       }
-      return
+
+      function clientIP() {
+        let r = req.headers['x-forwarded-for'] + ''; if ( r == '' ) r = req.connection.remoteAddress
+        if (r.indexOf(':') >= 0) r = r.substring(r.lastIndexOf(':')+1, r.length)
+        return r
+        // To pass the IP address, edit /etc/nginx/nginx.conf, under http {} section add this line:
+        // proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        // And then you'll have in nodejs req.headers['x-forwarded-for']
+      }
+
     }
 
   }).listen(global.port);
