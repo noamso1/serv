@@ -55,6 +55,7 @@ async function validate(q) {
         let f = def.name
         if ( q.act == 'insert' && def.mandatory && !item[f] ) return { error: 'must insert ' + q.col + '.' + f };
         if ( def.default == '$now' ) def.default = new Date().getTime()
+        if ( def.default == '$user_id' ) def.default = q.user?._id
         if ( q.act == 'insert' && !item[f] ) item[f] = def.default 
         if ( q.act == 'insert' && !item[f] ) item[f] = '' 
         if ( ( q.act == 'insert' || q.act == 'update' ) && def.unique && item[f] ) {
@@ -69,7 +70,7 @@ async function validate(q) {
         if ( !schema[q.col]?.allowExcessive && item[f] && !def ) return { error: 'excessive field ' + q.col + '.' + f }
         if ( def ) {
 
-          if ( def.type == 'mongoid' && typeof item[f] == 'string' ) item[f] = mongodb.ObjectId(item[f])
+          if ( def.type == 'mongoid' && item[f] && typeof item[f] == 'string' ) item[f] = mongodb.ObjectId(item[f])
 
           if ( def.type == 'increment' && q.act == 'insert' && !item[f] ) item[f] = await func.getSeedInc(q.col)
 
