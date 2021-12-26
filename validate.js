@@ -71,6 +71,7 @@ async function validate(q) {
         if ( def ) {
 
           if ( def.type == 'mongoid' && item[f] && typeof item[f] == 'string' ) item[f] = mongodb.ObjectId(item[f])
+          if ( def.type == 'mongoid' && !item[f] ) delete item[f]
 
           if ( def.type == 'increment' && q.act == 'insert' && !item[f] ) item[f] = await func.getSeedInc(q.col)
 
