@@ -42,7 +42,7 @@ function isDate(s) {
 }
 
 function isHour(s) {
-  if (!s) return false
+  if (!s || typeof s != 'string' ) return false
   let h = s.substring(0,2)
   let m = s.substring(3,5)
   if ( s.length != 5 || s.substring(2,3) != ':' ) return false
@@ -400,11 +400,16 @@ function addLog2(f, s) {
   fs.appendFile( f, s, { encoding: 'utf8' }, function(e){} ) 
 }
 
+function num(s) {
+  if (isNumeric(s)) return Number(s)
+  return 0
+}
+
 //-----------------------------------------
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, changePassword, passStrength, register, registerConfirm, sendResetToken, useResetToken, addLookups,
-  addLog, addLog2
+  addLog, addLog2, num
 }
 
