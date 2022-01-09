@@ -124,8 +124,8 @@ async function initServer() {
         res.writeHead(statusCode, {
           "Content-Type": "text/json",
           "Access-Control-Allow-Origin": "*", //cors
-          "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
-          "Access-Control-Max-Age": 86400,
+          //"Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+          //"Access-Control-Max-Age": 86400,
           "Connection": "close"
         });
         res.end(JSON.stringify(r))
