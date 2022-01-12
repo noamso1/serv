@@ -11,7 +11,7 @@ async function validate(q) {
     users: {
       allowExcessive: true,
       fields: [
-        { name: "email", type: 'string', mandatory: true, unique: true },
+        { name: "email", type: 'string', mandatory: true, unique: true, lower: true },
         { name: "name", type: 'string'},
         { name: "role", type: 'string', default: 'user', options: ['user', 'admin'] },
         { name: "pass", type: 'string'},
@@ -111,6 +111,8 @@ async function validate(q) {
 
           if ( def.options && !def.options.includes(item[f]) ) return { error: 'invalid ' + f + ' value' }
 
+          if ( def.lower && item[f] ) item[f] = item[f].toLowerCase()
+
         }
       }
     }
@@ -120,7 +122,6 @@ async function validate(q) {
   for (let item of q.data) {
     if ( q.col == 'users' ) {
       if ( q.act == 'insert' && !item.pass ) item.pass = func.randomString(10)
-      if ( ['insert', 'update', 'upsert'].includes(q.act) && item.email ) item.email = item.email.toLowerCase()
       if ( ['insert', 'update', 'upsert'].includes(q.act) && item.pass ) {
         item.passSalt = func.randomString(10)
         item.pass = func.createHash(item.pass + item.passSalt)
