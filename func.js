@@ -405,11 +405,16 @@ function num(s) {
   return 0
 }
 
+//Response=000&tranmode=AK&notify_url_address=http%3A%2F%2Flocalhost%3A3333%2Ftz.html
+function url2json(s) {
+  return Object.fromEntries(new URLSearchParams(s))
+}
+
 //-----------------------------------------
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, changePassword, passStrength, register, registerConfirm, sendResetToken, useResetToken, addLookups,
-  addLog, addLog2, num
+  addLog, addLog2, num, url2json
 }
 
