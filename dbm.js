@@ -73,6 +73,10 @@ async function dbDo(q) {
   return r;
 }
 
+function mongoObjectId(e) {
+  return mongodb.ObjectId(e)
+}
+
 function convertMongoIds(q) {
   // convert string _id to mongo objectid
   if (q.query) {
@@ -90,4 +94,5 @@ function convertMongoIds(q) {
   }
 }
 
-module.exports = { dbConnect, dbDo, convertMongoIds }
+module.exports = { dbConnect, dbDo, convertMongoIds, mongoObjectId }
+
