@@ -410,9 +410,15 @@ function url2json(s) {
   return Object.fromEntries(new URLSearchParams(s))
 }
 
+//delKeys(object, 'key1,key2')
+function delKeys(obj, keys) {
+  let kk = keys.split(',')
+  for ( let k of keys ) delete obj[k]
+}
+
 //-----------------------------------------
 module.exports = {
-  isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff,
+  isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff, delKeys,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, changePassword, passStrength, register, registerConfirm, sendResetToken, useResetToken, addLookups,
   addLog, addLog2, num, url2json
