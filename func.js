@@ -132,7 +132,8 @@ function fetch(url, method, headers, data) {
 
 function randomString(length, chars) {
   // to be able to control which characters to use
-  if (!chars) chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%^&*()_+`~-=[]{}|/:;<>,';
+  //if (!chars) chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%^&*()_+`~-=[]{}|/:;<>,';
+  if (!chars) chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
   let pass = '';
   for (let x = 0; x < length; x++) {
     let i = Math.floor(Math.random() * chars.length);
