@@ -55,7 +55,8 @@ async function initServer() {
       if ( ext == 'htm' ) t = 'text/html'
       if ( ext == 'html' ) t = 'text/html'
       if ( !t ) { res.end('Not Found'); return }
-      res.writeHead(200, { 'Content-Type': t, "Cache-Control": "max-age=10800" } ); res.end(fs.readFileSync(u)); return
+      let z = 10800; if ( global.arg.local ) z = 0 
+      res.writeHead(200, { 'Content-Type': t, "Cache-Control": "max-age=" + z } ); res.end(fs.readFileSync(u)); return
     }
 
     // ----------------------------- API
