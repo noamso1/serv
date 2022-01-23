@@ -45,18 +45,10 @@ async function initServer() {
       u = 'public/' + u
       if ( !fs.existsSync(u) || fs.lstatSync(u).isDirectory() ) { res.end('Not Found'); return }
       if ( u.indexOf('.') >= 0) ext = u.slice(u.lastIndexOf('.') + 1, u.length)
-      if ( ext == 'js' ) t = 'text/javascript'
-      if ( ext == 'css' ) t = 'text/css'
-      if ( ext == 'ico' ) t = 'image/x-icon'
-      if ( ext == 'png' ) t = 'image/png'
-      if ( ext == 'jpg' ) t = 'image/jpeg'
-      if ( ext == 'svg' ) t = 'image/svg+xml'
-      if ( ext == 'zip' ) t = 'application/zip'
-      if ( ext == 'htm' ) t = 'text/html'
-      if ( ext == 'html' ) t = 'text/html'
-      if ( !t ) { res.end('Not Found'); return }
+      let mm = { js: 'text/javascript', css: 'text/css', ico: 'image/x-icon', png: 'image/png', jpg: 'image/jpeg', svg: 'image/svg+xml', zip: 'application/zip', htm: 'text/html', html: 'text/html' }
+      if ( !mm[ext] ) { res.end('Not Found'); return }
       let z = 10800; if ( global.arg.local ) z = 0 
-      res.writeHead(200, { 'Content-Type': t, "Cache-Control": "max-age=" + z } ); res.end(fs.readFileSync(u)); return
+      res.writeHead(200, { 'Content-Type': mm[ext], "Cache-Control": "max-age=" + z } ); res.end(fs.readFileSync(u)); return
     }
 
     // ----------------------------- API
