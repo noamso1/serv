@@ -90,6 +90,11 @@ async function utcToLocal(date, timeZone) { // UTC to local time
   return r
 }
 
+function lastDay( d ) {
+  let today = new Date(d);
+  let last = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  return last.getDate()
+}
 
 //-----------------------------------------
 function fetch(url, method, headers, data) {
@@ -437,6 +442,6 @@ module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff, delKeys,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, changePassword, passStrength, register, registerConfirm, sendResetToken, useResetToken, addLookups,
-  addLog, addLog2, num, url2json, getArgs
+  addLog, addLog2, num, url2json, getArgs, lastDay,
 }
 
