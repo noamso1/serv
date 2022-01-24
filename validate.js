@@ -50,19 +50,14 @@ async function validate(q) {
   // -------------------apply schema---------------
   if ( [ 'insert', 'update' ].includes(q.act) && schema[q.col] ) {
     for ( let item of q.data ) { 
-      for ( let def of schema[q.col].fields ) {
 
+      for ( let def of schema[q.col].fields ) {
         let f = def.name
         if ( q.act == 'insert' && def.mandatory && !item[f] ) return { error: 'must insert ' + q.col + '.' + f };
         if ( def.default == '$now' ) def.default = new Date().getTime()
         if ( def.default == '$user_id' ) def.default = q.user?._id
         if ( q.act == 'insert' && !item[f] ) item[f] = def.default 
         if ( q.act == 'insert' && !item[f] ) item[f] = '' 
-        if ( ( q.act == 'insert' || q.act == 'update' ) && def.unique && item[f] ) {
-          let search = {}; search[f] = item[f]; if (q.act == 'update') search.$nor = [ q.query ]
-          let found = await global.db.collection(q.col).findOne(search)
-          if (found) return { error: f + ' ' + item[f] + ' already exists' };
-        }
       }
 
       for ( let f in item ) {
@@ -115,6 +110,18 @@ async function validate(q) {
 
         }
       }
+
+      for ( let def of schema[q.col].fields ) { //check for uniques, after mongoids are converted
+        let f = def.name
+        if ( ( q.act == 'insert' || q.act == 'update' ) && def.unique && item[f] ) {
+          let search = {}; search[f] = item[f]; if (q.act == 'update') search.$nor = [ q.query ]
+console.log(JSON.stringify(search))
+
+          let found = await global.db.collection(q.col).findOne(search)
+          if (found) return { error: f + ' ' + item[f] + ' already exists' };
+        }
+      }
+
     }
   }
 

@@ -17,9 +17,8 @@ async function main() {
     let e = arg.email; if (!e) e = 'kiki@kiki.com'
     let p = arg.pass; if (!p) p = '1'
     let salt = func.randomString(10)
-    p = func.createHash(p + salt)
     let f = { "email": e}
-    let u = { "passSalt" : salt, "pass": p }
+    let u = { "passSalt" : salt, "passHash": func.createHash(p + salt) }
     let t = await global.db.collection("users").updateMany(f, {"$set": u});
     console.log(t)
     console.log('updated password')
