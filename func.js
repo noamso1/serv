@@ -417,11 +417,26 @@ function delKeys(obj, keys) {
   for ( let k of keys ) delete obj[k]
 }
 
+// load the arguments: node main.js db=moovex port=9999 ----> arg = {"db": "moovex", "port": "9999"}
+function getArgs() {
+  let arg = {};
+  for (let i = 2; i < 999; i++) {
+    let a = process.argv[i]
+    if ( !a ) break
+    if ( a.indexOf('=') >= 0 ) {
+      let k = a.substring(0, a.indexOf('='))
+      let v = a.substring(a.indexOf('=') + 1, a.length)
+      arg[k] = v
+    }
+  }
+  return arg  
+}
+
 //-----------------------------------------
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff, delKeys,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, changePassword, passStrength, register, registerConfirm, sendResetToken, useResetToken, addLookups,
-  addLog, addLog2, num, url2json
+  addLog, addLog2, num, url2json, getArgs
 }
 

@@ -11,18 +11,7 @@ const perm = require('./perm.js')
 const dbm = require('./dbm.js')
 //const sched = require('./sched.js')
 //const ws = require('./ws.js')
-
-// load the arguments: node main.js db=serv port=9999 ----> arg = {"db": "serv", "port": "9999"}
-global.arg = {};
-for (let i = 2; i < 999; i++) {
-  let a = process.argv[i];
-  if (a === undefined) break;
-  if (a.indexOf('=') >= 0) {
-    let k = a.substring(0, a.indexOf('='));
-    let v = a.substring(a.indexOf('=') + 1, a.length);
-    global.arg[k] = v;
-  }
-}
+global.arg = func.getArgs()
 
 // initial values
 global.port = global.arg.port; if (!global.port) global.port = env.port 
