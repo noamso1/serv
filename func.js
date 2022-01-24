@@ -55,38 +55,11 @@ function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
-async function utcToLocal(date, timeZone) { // UTC to local time
-  // utcToLocal('2024-01-01 12:00', 'EST')
-  let tz = 0
-  if (!isDate(date)) date = new Date().toISOString().substring(0, 19).replace('T', ' '); //current UTC date string
-  if (!timeZone) timeZone = await getSettings('time zone')
-  timeZone += ''
-  if (isNumeric(timeZone)) {
-    tz = parseFloat(timeZone)
-  } else {
-    let t = timeZone.toLowerCase(); t = strFilter(t, 'abcdefghijklmnopqrstuvwxyz')
-    if (t == 'uae') tz = +4 // Emirates
-    if (['est', 'cst', 'mst', 'pst', 'hast', 'akst'].includes(t)) { // USA
-      if (t == 'est') tz = -5
-      if (t == 'cst') tz = -6
-      if (t == 'mst') tz = -7
-      if (t == 'pst') tz = -8
-      if (t == 'hast') tz = -9
-      if (t == 'akst') tz = -10
-      if (date >= '2019-03-10 07:00' && date <= '2019-11-03 07:00') tz += 1
-      if (date >= '2020-03-08 07:00' && date <= '2020-11-01 07:00') tz += 1
-      if (date >= '2021-03-14 07:00' && date <= '2021-11-07 07:00') tz += 1
-      if (date >= '2022-03-13 07:00' && date <= '2022-11-06 07:00') tz += 1
-      if (date >= '2023-03-12 07:00' && date <= '2023-11-05 07:00') tz += 1
-      if (date >= '2024-03-10 07:00' && date <= '2024-11-03 07:00') tz += 1
-      if (date >= '2025-03-09 07:00' && date <= '2025-11-02 07:00') tz += 1
-      if (date >= '2026-03-08 07:00' && date <= '2026-11-01 07:00') tz += 1
-      if (date >= '2027-03-14 07:00' && date <= '2027-11-07 07:00') tz += 1
-      if (date >= '2028-03-12 07:00' && date <= '2028-11-05 07:00') tz += 1
-      if (date >= '2029-03-11 07:00' && date <= '2029-11-04 07:00') tz += 1
-    }
-  }
-  let r = dateAddSeconds(date, tz * 3600)
+// utcToLocal('2024-01-01 12:00', 'ISRAEL')
+function utcToLocal(date, timeZone) {
+  if (!date) date = new Date()
+  let loc = new Date(date).toLocaleString('en-GB', { timeZone: timeZone })
+  let r = loc.substring(6,10) + '-' + loc.substring(3,5) + '-' + loc.substring(0,2) + loc.substring(11)
   return r
 }
 
