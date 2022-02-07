@@ -63,6 +63,14 @@ function utcToLocal(date, timeZone) {
   return r
 }
 
+function localToUTC(d) {
+  var now = new Date(d);
+  var utc = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+  utc = utc.toISOString()
+  utc = utc.substring(0,10) + ' ' + utc.substring(11,19)
+  return utc
+}
+
 function lastDay( d ) {
   let today = new Date(d);
   let last = new Date(today.getFullYear(), today.getMonth() + 1, 0);

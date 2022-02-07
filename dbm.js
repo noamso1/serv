@@ -90,6 +90,7 @@ function convertMongoIds(q) {
   function convertKeysToMongoIds(d) {
     for ( let k in d ) {
       if ( k.endsWith('_id') && typeof d[k] == 'string' ) d[k] = mongodb.ObjectId(d[k])
+      if ( k.endsWith('_id') && d[k].$in ) d[k].$in = d[k].$in.map( e => mongodb.ObjectId(e) )
     }
   }
 }

@@ -9,8 +9,8 @@ console.log(arg)
 main()
 
 async function main() {
-  global.dbName = arg.db; if(!global.dbName) global.dbName = "serv"
-  global.dbConn = arg.conn; if(!global.dbConn) global.dbConn = "mongodb://localhost:27017"
+  global.dbName = arg.db; if(!global.dbName) global.dbName = global.env.dbName
+  global.dbConn = arg.conn; if(!global.dbConn) global.dbConn = global.env.dbConn
   await dbm.dbConnect(global.dbConn, global.dbName);
 
   if( arg.act == 'changepass' ) {
