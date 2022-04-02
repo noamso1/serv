@@ -9,6 +9,7 @@
   .boolean { color: #aaf; }
   .null { color: #faa; }
 </style> </head>
+<script src="https://unpkg.com/json5@^2.0.0/dist/index.min.js"></script>
 <body>
   <div style='padding:10px;'>
     <input type=text id=tok style='height:20; width:200; margin-bottom:5; background:#ddd;'> &nbsp;&nbsp;
@@ -25,7 +26,7 @@
 
   async function show() {
     let r = '', a = '', t = '';
-    let qj = JSON.parse(q.value);
+    let qj = JSON5.parse(q.value);
     if (qj.token == '...') qj.token = tok.value
     divmain.innerHTML = '';
     a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: JSON.stringify(qj) });
