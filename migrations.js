@@ -6,7 +6,7 @@ async function doit() {
 
   // insert first user
   {
-    let u = await db.collection('users').findOne( { email:'kiki@kiki.com' } )
+    let u = await db.collection('users').findOne( { } )
     if ( !u ) {
       //let p = func.randomString(10, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
       let p = '1'
