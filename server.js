@@ -45,18 +45,28 @@ async function initServer() {
       req.on('data', function (data) { buf += data; });
       req.on('end', async function () {
 
-        // log 
-        { let a = buf; a = a.replace(/\n/g, ''); a = func.replaceFromTo(a, 0 , '"token"', '",', ':"...'); a = func.replaceFromTo(a, 0 , '"token"', '"}', ':"...'); console.log('=== ' + a.substring(0,100) ); }
-
         // filter out script injection
         buf = buf.replace(/</g, '[').replace(/>/g, ']').replace(/javascript/ig, 'java script').replace(/\$where/ig, 'where')
+
+        // log to console
+        { let a = buf; a = a.replace(/\n/g, ''); a = func.replaceFromTo(a, 0 , '"token"', '",', ':"...'); a = func.replaceFromTo(a, 0 , '"token"', '"}', ':"...'); console.log('=== ' + a.substring(0,100) ); }
 
         // parse the json input
         try { q = JSON.parse(buf); } catch (error) { reply( { error: "invalid json" } ); return }
         q.user = { name: 'Guest', email: 'guest', role: 'guest' }
         await perm.initTokenPass()
 
-        // log
+        // comply to restful conventions
+        // curl "http://localhost:1111/users/find/620904d3c8d550b7694ca84e" -H "authorization:+TMAuuHjRdVfVyKltvPDm0ZHGTCBtCE/KaTynCozTVvIks39b8OA8t5AHM3NIkNfIESuZWIgQw1YKm3iIUeaFzh/fpAi05SGv9qXDAK7XBts2fGk7aBT36XkqCzjtpUn20al2qHat+Dr/sTp0J+9fEMDDYo0lN1nIEttE7OLIXsHmACV8CMBNOd+vJIMtWrcGVbqV6ZSbuqUL2IqB7FH+A==.PYSWVPhtOKCdZCoBbtDwZA==" -d '{}'
+        {
+          if (req.headers && req.headers.authorization) q.token = req.headers.authorization
+          let uu = req.url.split('/')
+          if (uu[1]) q.col = uu[1]
+          if (uu[2]) q.act = uu[2]
+          if (uu[3]) { if (!q.query) q.query = {}; q.query._id = uu[3]; }
+        }
+
+        // log to file
         if ( arg.log ) {
           requestId = func.randomString(10) 
           let a = func.clone(q); delete a.token
