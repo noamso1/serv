@@ -28,7 +28,7 @@ async function initServer() {
     // ----------------- static file server - front end
     if (req.method == 'GET') {
       let ext, head, u = req.url.slice(1)
-      let mm = { js: 'text/javascript', css: 'text/css', ico: 'image/x-icon', png: 'image/png', jpg: 'image/jpeg', svg: 'image/svg+xml', zip: 'application/zip', htm: 'text/html', html: 'text/html' }
+      let mm = { js: 'text/javascript', json: 'application/json', css: 'text/css', ico: 'image/x-icon', png: 'image/png', jpg: 'image/jpeg', svg: 'image/svg+xml', zip: 'application/zip', htm: 'text/html', html: 'text/html' }
       if ( u.indexOf('..') >= 0 ) { res.end(); return }
       if ( u.indexOf('?') >= 0 ) u = u.substring(0, u.indexOf('?'))
       if ( u.indexOf('.') >= 0) ext = u.slice(u.lastIndexOf('.') + 1, u.length)
