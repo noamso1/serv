@@ -418,11 +418,19 @@ function getArgs() {
   return arg  
 }
 
+function sortKeys( o ) { // recursively sort object keys
+  return Object.assign({}, ...Object
+    .keys(o)
+    .sort()
+    .map(k => ({ [k]: o[k] && typeof o[k] === 'object' ? sortKeys(o[k]) : o[k] }))
+  );
+}
+
 //-----------------------------------------
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff, delKeys,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, changePassword, passStrength, register, registerConfirm, sendResetToken, useResetToken, addLookups,
-  addLog, addLog2, num, url2json, getArgs, lastDay,
+  addLog, addLog2, num, url2json, getArgs, lastDay, sortKeys,
 }
 
