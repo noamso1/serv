@@ -400,7 +400,7 @@ function url2json(s) {
 //delKeys(object, 'key1,key2')
 function delKeys(obj, keys) {
   let kk = keys.split(',')
-  for ( let k of keys ) delete obj[k]
+  for ( let k of kk ) delete obj[k]
 }
 
 // load the arguments: node main.js db=moovex port=9999 ----> arg = {"db": "moovex", "port": "9999"}
