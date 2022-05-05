@@ -115,8 +115,6 @@ async function validate(q) {
         let f = def.name
         if ( ( q.act == 'insert' || q.act == 'update' ) && def.unique && item[f] ) {
           let search = {}; search[f] = item[f]; if (q.act == 'update') search.$nor = [ q.query ]
-console.log(JSON.stringify(search))
-
           let found = await global.db.collection(q.col).findOne(search)
           if (found) return { error: f + ' ' + item[f] + ' already exists' };
         }
@@ -131,7 +129,8 @@ console.log(JSON.stringify(search))
       if ( q.act == 'insert' && !item.pass ) item.pass = func.randomString(10)
       if ( ['insert', 'update', 'upsert'].includes(q.act) && item.pass ) {
         item.passSalt = func.randomString(10)
-        item.pass = func.createHash(item.pass + item.passSalt)
+        item.passHash = func.createHash(item.pass + item.passSalt)
+        delete item.pass
       }
     }
   }
