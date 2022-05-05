@@ -25,8 +25,8 @@
   //if (location.hostname == 'localhost') tok.value = 'sldkfdlfkjl'
 
   async function show() {
-    let r = '', a = '', t = '';
-    try { let qj = JSON5.parse(q.value); } catch(e) { alert(e) }
+    let r = '', a = '', t = '', qj
+    try { qj = JSON5.parse(q.value); } catch(e) { alert(e) }
     if (qj.token == '...') qj.token = tok.value
     divmain.innerHTML = '';
     a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: JSON.stringify(qj) });
