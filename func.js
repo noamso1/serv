@@ -426,11 +426,17 @@ function sortKeys( o ) { // recursively sort object keys
   );
 }
 
+function isSame( a, b ) {
+  let a_snap = JSON.stringify(sortKeys(a))
+  let b_snap = JSON.stringify(sortKeys(b))
+  if ( a_snap == b_snap ) return true
+}
+
 //-----------------------------------------
 module.exports = {
   isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff, delKeys,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, changePassword, passStrength, register, registerConfirm, sendResetToken, useResetToken, addLookups,
-  addLog, addLog2, num, url2json, getArgs, lastDay, sortKeys,
+  addLog, addLog2, num, url2json, getArgs, lastDay, sortKeys, isSame
 }
 
