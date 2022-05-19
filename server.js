@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
-process.on('uncaughtException', function (err) { console.error(err); });
-process.on('unhandledRejection', function (err) { console.log('unhandledRejection Error: ' + err.stack); });
+//process.on('uncaughtException', function (err) { console.error(err); });
+//process.on('unhandledRejection', function (err) { console.log('unhandledRejection Error: ' + err.stack); });
 
 global.env = require('./env.json')
 const http = require('http')
