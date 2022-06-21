@@ -112,7 +112,7 @@ async function initTokenPass() {
   async function changeTokenPass() {
     global.tokenPassLast = global.tokenPass
     global.tokenPass = func.randomString(50)
-    if ( global.arg.local ) { global.tokenPass = '1'; global.tokenPassLast = '1' }
+    if ( global.arg.sys == 'local' ) { global.tokenPass = '1'; global.tokenPassLast = '1' }
     global.db.collection('system').updateOne( { _id: 'tokenPass' }, { $set: { value: global.tokenPass } }, { upsert: true } )
     global.db.collection('system').updateOne( { _id: 'tokenPassLast' }, { $set: { value: global.tokenPassLast } }, { upsert: true } )
   }
@@ -150,7 +150,7 @@ async function login(q) {
       return { error: 'permission denied' }
     }
     delete user.passHash; delete user.passSalt; user.issued = now
-    if ( global.arg.local ) user.issued = 9999999999999 // for local debug
+    if ( global.arg.sys == 'local' ) user.issued = 9999999999999
     let token = func.enc(JSON.stringify(user), global.tokenPass)
     setPermissions(user)
     return { token, user }

@@ -35,7 +35,7 @@ async function initServer() {
       if ( u == '' ) u = 'index.html'
       u = 'public/' + u
       if ( !fs.existsSync(u) || fs.lstatSync(u).isDirectory() || !mm[ext] ) { res.end('Not Found'); return }
-      res.writeHead(200, { 'Content-Type': mm[ext], "Cache-Control": "max-age=" + global.arg.local ? 0 : 10800 } )
+      res.writeHead(200, { 'Content-Type': mm[ext], "Cache-Control": "max-age=" + global.arg.sys == 'local' ? 0 : 10800 } )
       res.end(fs.readFileSync(u)); return
     }
 
