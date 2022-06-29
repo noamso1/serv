@@ -26,7 +26,7 @@
 
   async function show() {
     let r = '', a = '', t = '', qj
-    try { qj = JSON5.parse(q.value); } catch(e) { alert(e) }
+    try { qj = JSON5.parse(q.value); } catch(e) { alert(e); return }
     if (qj.token == '...') qj.token = tok.value
     divmain.innerHTML = '';
     a = await fetch(location.protocol + '//' + location.host, { method: 'post', body: JSON.stringify(qj) });
