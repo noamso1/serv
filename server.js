@@ -68,7 +68,7 @@ async function initServer() {
 
         // log to file
         if ( arg.log ) {
-          requestId = func.randomString(10) 
+          requestId = func.randomString(10, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890') 
           let a = func.clone(q); delete a.token
           let f = '../log/' + global.dbName + '-' + new Date().toISOString().substring(0,10) + '.log'
           let text = 'Q|' + new Date().toISOString() + '|' + requestId + '|' + clientIP() + '|' + q.user?.email + '|' + JSON.stringify(a).replace(/\n/g, '§') + '\n'
