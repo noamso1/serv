@@ -135,6 +135,12 @@ async function validate(q) {
     }
   }
 
+  if ( [ 'find', 'update', 'delete' ].includes( q.act ) ) {
+    if ( !q.query || Object.keys( q.query ).length == 0 ) return { error: 'must specify query' }
+    if ( q.act == 'find' && ( !q.limit || q.limit > 500 ) ) q.limit = 500
+    if ( q.act == 'insert' && q.data.length > 500 ) return { error: 'can not insert so many items at once' }
+  }
+
   return {};
 }
 
