@@ -434,7 +434,7 @@ function isSame( a, b ) {
 
 //-----------------------------------------
 module.exports = {
-  isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, showDate, dateAddSeconds, dateDiff, delKeys,
+  isEmail, fetch, enc, dec, isNumeric, isDate, isHour, utcToLocal, localToUTC, showDate, dateAddSeconds, dateDiff, delKeys,
   getFromTo, replaceFromTo, randomString, fetchSettings, clone, strFilter, fetchSettings, getSettings, getSeedInc, uniqueArray,
   createHash, validateHash, changePassword, passStrength, register, registerConfirm, sendResetToken, useResetToken, addLookups,
   addLog, addLog2, num, url2json, getArgs, lastDay, sortKeys, isSame
